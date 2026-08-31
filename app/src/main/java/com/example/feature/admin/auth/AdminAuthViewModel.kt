@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.auth.AdminUser
 import com.example.data.firebase.AuthRepository
 import com.example.data.firebase.AuthResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed interface AdminLoginUiState {
     object Idle : AdminLoginUiState
@@ -17,8 +19,9 @@ sealed interface AdminLoginUiState {
     data class Error(val message: String) : AdminLoginUiState
 }
 
-class AdminAuthViewModel(
-    private val authRepository: AuthRepository = AuthRepository.getInstance()
+@HiltViewModel
+class AdminAuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AdminLoginUiState>(AdminLoginUiState.Idle)

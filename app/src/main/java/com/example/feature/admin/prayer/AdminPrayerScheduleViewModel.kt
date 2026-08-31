@@ -1,11 +1,11 @@
 package com.example.feature.admin.prayer
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.auth.AdminUser
 import com.example.data.firebase.CustomPrayerOverride
 import com.example.data.firebase.MosqueAdminRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,14 +14,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
+import javax.inject.Inject
 
 sealed class PrayerScheduleUiEvent {
     data class ShowMessage(val message: String, val isError: Boolean = false) : PrayerScheduleUiEvent()
 }
 
-class AdminPrayerScheduleViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = MosqueAdminRepository.getInstance()
+@HiltViewModel
+class AdminPrayerScheduleViewModel @Inject constructor(
+    private val repository: MosqueAdminRepository
+) : ViewModel() {
 
     val currentOverrides: StateFlow<CustomPrayerOverride> = repository.prayerOverrides
     val isLoading: StateFlow<Boolean> = repository.isLoading

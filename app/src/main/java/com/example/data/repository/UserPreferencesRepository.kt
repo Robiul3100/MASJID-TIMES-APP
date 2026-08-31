@@ -71,8 +71,7 @@ object UserPreferencesRepository {
     )
     val donationHistory: StateFlow<List<DonationRecord>> = _donationHistory.asStateFlow()
 
-    fun initialize(context: Context) {
-        val repo = OfflinePrayerRepository.getInstance(context)
+    fun initialize(repo: OfflinePrayerRepository) {
         offlineRepo = repo
         coroutineScope.launch {
             repo.initializeDatabase()
@@ -148,4 +147,3 @@ object UserPreferencesRepository {
         }
     }
 }
-

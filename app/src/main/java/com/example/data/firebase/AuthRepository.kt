@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
+import javax.inject.Singleton
 
 sealed class AuthResult {
     data class Success(val user: AdminUser) : AuthResult()
@@ -22,10 +24,10 @@ sealed class AuthResult {
     object Loading : AuthResult()
 }
 
-class AuthRepository(
-    private val auth: FirebaseAuth = try { FirebaseAuth.getInstance() } catch (e: Exception) { null } ?: FirebaseAuth.getInstance(),
+@Singleton
+class AuthRepository @Inject constructor() {
+    private val auth: FirebaseAuth = try { FirebaseAuth.getInstance() } catch (e: Exception) { null } ?: FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null } ?: FirebaseFirestore.getInstance()
-) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val _currentUser = MutableStateFlow<AdminUser?>(null)
     val currentUser: StateFlow<AdminUser?> = _currentUser.asStateFlow()
@@ -197,16 +199,5 @@ class AuthRepository(
             Log.e("AuthRepository", "SignOut exception: ${e.message}")
         }
         _currentUser.value = null
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: AuthRepository? = null
-
-        fun getInstance(): AuthRepository {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: AuthRepository().also { INSTANCE = it }
-            }
-        }
     }
 }

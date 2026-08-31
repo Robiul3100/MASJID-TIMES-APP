@@ -4,4 +4,15 @@
     <string name="mosque_type_bn">জামে মসজিদ</string>
     <string name="channel_prayer_alerts_name">নামাজের সময়সূচি ও আজান এলার্ট</string>
     <string name="channel_prayer_alerts_desc">ওয়াক্তভিত্তিক নামাজের সময়সূচি ও ইসলামিক স্মরণবার্তা</string>
+    <string name="tasbih_feature">ডিজিটাল তসবিহ</string>
+    <string name="tasbih_subtitle">কাউন্টার ও যিকির ট্র্যাকার</string>
+    <string name="zakat_feature">জাকাত ও ফিতরা</string>
+    <string name="zakat_subtitle">নিসাব ভিত্তিক ক্যালকুলেটর</string>
+    <string name="ramadan_feature">রমজান স্পেশাল</string>
+    <string name="ramadan_subtitle">সেহরি-ইফতার কাউন্টডাউন</string>
+    <string name="emergency_feature">জানাজা ও রক্তদান</string>
+    <string name="emergency_subtitle">জরুরি ঘোষণা ও নোটিশ</string>
+    <string name="ask_imam_title">ইমাম সাহেবকে সরাসরি প্রশ্ন করুন</string>
+    <string name="ask_imam_subtitle">যেকোনো শরয়ী জটিলতা ও ফতোয়া জিজ্ঞাসা</string>
+    <string name="ask_imam_action">জিজ্ঞাসা ›</string>
 </resources>

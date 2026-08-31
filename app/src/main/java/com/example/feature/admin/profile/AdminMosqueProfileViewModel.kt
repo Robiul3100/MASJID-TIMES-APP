@@ -1,7 +1,6 @@
 package com.example.feature.admin.profile
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.auth.AdminUser
 import com.example.data.firebase.MosqueAdminRepository
@@ -9,6 +8,7 @@ import com.example.data.model.CommitteeCategory
 import com.example.data.model.CommitteeMember
 import com.example.data.model.FacilityItem
 import com.example.data.model.MosqueDetails
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,14 +16,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class ProfileUiEvent {
     data class ShowMessage(val message: String, val isError: Boolean = false) : ProfileUiEvent()
 }
 
-class AdminMosqueProfileViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = MosqueAdminRepository.getInstance()
+@HiltViewModel
+class AdminMosqueProfileViewModel @Inject constructor(
+    private val repository: MosqueAdminRepository
+) : ViewModel() {
 
     val currentDetails: StateFlow<MosqueDetails> = repository.mosqueDetails
     val committeeMembers: StateFlow<List<CommitteeMember>> = repository.committeeList

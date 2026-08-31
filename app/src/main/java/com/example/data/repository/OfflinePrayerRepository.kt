@@ -1,28 +1,30 @@
 package com.example.data.repository
 
-import android.content.Context
-import com.example.data.local.AppDatabase
+import com.example.data.local.dao.OfflinePrayerScheduleDao
+import com.example.data.local.dao.PrayerScheduleSettingsDao
+import com.example.data.local.dao.UserLocationDao
 import com.example.data.local.entity.OfflinePrayerScheduleEntity
 import com.example.data.local.entity.PrayerScheduleSettingsEntity
 import com.example.data.local.entity.UserLocationEntity
 import com.example.data.model.AppSettings
-import com.example.data.model.District
 import com.example.data.model.MonthlyPrayerDay
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class OfflinePrayerRepository private constructor(private val database: AppDatabase) {
-
-    private val settingsDao = database.prayerScheduleSettingsDao()
-    private val locationDao = database.userLocationDao()
-    private val scheduleDao = database.offlinePrayerScheduleDao()
+@Singleton
+class OfflinePrayerRepository @Inject constructor(
+    private val settingsDao: PrayerScheduleSettingsDao,
+    private val locationDao: UserLocationDao,
+    private val scheduleDao: OfflinePrayerScheduleDao,
+    private val mosqueRepository: MosqueRepository
+) {
 
     val settingsFlow: Flow<AppSettings> = settingsDao.getSettingsFlow()
         .map { entity -> entity?.toDomainModel() ?: AppSettings() }
@@ -47,7 +49,7 @@ class OfflinePrayerRepository private constructor(private val database: AppDatab
         // 2. Prepopulate 64 districts / default locations if empty
         val count = locationDao.getLocationCount()
         if (count == 0) {
-            val locationEntities = MosqueRepository.districts.map { dist ->
+            val locationEntities = mosqueRepository.districts.map { dist ->
                 UserLocationEntity(
                     id = dist.id,
                     districtId = dist.id,
@@ -132,7 +134,7 @@ class OfflinePrayerRepository private constructor(private val database: AppDatab
     }
 
     suspend fun cacheMonthlySchedule(year: Int, month: Int, districtId: String) = withContext(Dispatchers.IO) {
-        val calculatedDays = MosqueRepository.generateMonthlySchedule(year, month, districtId)
+        val calculatedDays = mosqueRepository.generateMonthlySchedule(year, month, districtId)
         val entities = calculatedDays.map { day ->
             OfflinePrayerScheduleEntity.fromMonthlyPrayerDay(day, year, month, districtId)
         }
@@ -148,7 +150,7 @@ class OfflinePrayerRepository private constructor(private val database: AppDatab
         return scheduleDao.getMonthlyScheduleFlow(year, month, districtId).map { entities ->
             if (entities.isEmpty()) {
                 // Generate and return fallback if cache not yet populated
-                MosqueRepository.generateMonthlySchedule(year, month, districtId)
+                mosqueRepository.generateMonthlySchedule(year, month, districtId)
             } else {
                 entities.map { entity ->
                     val isToday = (year == todayYear && month == todayMonth && entity.dayNumber == todayDay)
@@ -221,20 +223,6 @@ class OfflinePrayerRepository private constructor(private val database: AppDatab
             "jessore" -> 89.2182
             "coxsbazar" -> 92.0058
             else -> 90.4125
-        }
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: OfflinePrayerRepository? = null
-
-        fun getInstance(context: Context): OfflinePrayerRepository {
-            return INSTANCE ?: synchronized(this) {
-                val database = AppDatabase.getInstance(context)
-                val instance = OfflinePrayerRepository(database)
-                INSTANCE = instance
-                instance
-            }
         }
     }
 }

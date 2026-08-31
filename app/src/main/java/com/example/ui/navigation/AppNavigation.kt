@@ -20,7 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.feature.admin.activity.AdminActivityLogsScreen
 import com.example.feature.admin.auth.AdminAuthViewModel
 import com.example.feature.admin.auth.AdminLoginScreen
@@ -194,7 +194,8 @@ fun AppNavigation(
                         },
                         onNavigateToAskImam = {
                             navController.navigate(Screen.AskImam.route)
-                        }
+                        },
+                        viewModel = hiltViewModel()
                     )
                 }
 
@@ -471,7 +472,7 @@ fun AppNavigation(
 
                 // Sub-admin modules
                 composable(Screen.AdminMosque.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminMosqueProfileScreen(
                         currentAdmin = currentAdmin,
@@ -479,7 +480,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Screen.AdminPrayer.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminPrayerScheduleScreen(
                         currentAdmin = currentAdmin,
@@ -487,7 +488,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Screen.AdminMeals.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminMealsScreen(
                         currentAdmin = currentAdmin,
@@ -495,7 +496,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Screen.AdminNotices.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminNoticeScreen(
                         currentAdmin = currentAdmin,
@@ -503,7 +504,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Screen.AdminNotifications.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminNotificationScreen(
                         currentAdmin = currentAdmin,
@@ -541,7 +542,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Screen.AdminEmergency.route) {
-                    val authViewModel: AdminAuthViewModel = viewModel()
+                    val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()
                     AdminEmergencyScreen(
                         currentAdmin = currentAdmin,

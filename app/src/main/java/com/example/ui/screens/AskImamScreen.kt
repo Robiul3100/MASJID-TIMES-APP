@@ -88,10 +88,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @Composable
 fun AskImamScreen(
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AskImamViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -150,7 +153,7 @@ fun AskImamScreen(
         if (selectedTabIndex == 0) {
             FatwaLibraryTab(fatwas = fatwas)
         } else {
-            AskQuestionFormTab()
+            AskQuestionFormTab(viewModel)
         }
     }
 }
@@ -351,11 +354,12 @@ private fun FatwaLibraryTab(fatwas: List<FatwaArticle>) {
 }
 
 @Composable
-private fun AskQuestionFormTab() {
-    val context = LocalContext.current
+private fun AskQuestionFormTab(
+    viewModel: AskImamViewModel
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val db = remember { AppDatabase.getInstance(context) }
-    val userQuestions by db.userQuestionDao().getAllUserQuestionsFlow().collectAsState(initial = emptyList())
+    val userQuestions by viewModel.userQuestions.collectAsState()
 
     var nameText by remember { mutableStateOf("") }
     var phoneText by remember { mutableStateOf("") }
@@ -507,7 +511,7 @@ private fun AskQuestionFormTab() {
                                 questionText = questionText,
                                 isPrivate = isPrivate
                             )
-                            db.userQuestionDao().insertUserQuestion(UserQuestionEntity.fromDomainModel(newQ))
+                            viewModel.submitQuestion(UserQuestionEntity.fromDomainModel(newQ))
                         }
                         Toast.makeText(context, "প্রশ্নটি সফলভাবে ইমাম সাহেবের কাছে পাঠানো হয়েছে", Toast.LENGTH_LONG).show()
                         questionText = ""

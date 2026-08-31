@@ -30,6 +30,8 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 
 data class CustomPrayerOverride(
     val fajrAzan: String = "04:35",
@@ -55,9 +57,10 @@ data class CustomPrayerOverride(
     val updatedBy: String = "Admin"
 )
 
-class MosqueAdminRepository private constructor(
+@Singleton
+class MosqueAdminRepository @Inject constructor() {
+
     private val firestore: FirebaseFirestore = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null } ?: FirebaseFirestore.getInstance()
-) {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _mosqueDetails = MutableStateFlow<MosqueDetails>(MosqueRepository.mosqueInfo)
@@ -606,19 +609,6 @@ class MosqueAdminRepository private constructor(
             firestore.collection(FirestoreCollections.AUDIT_LOGS).add(logData).await()
         } catch (e: Exception) {
             Log.w("MosqueAdminRepo", "Audit log ignored offline: ${e.message}")
-        }
-    }
-
-    companion object {
-        @Volatile
-        private var INSTANCE: MosqueAdminRepository? = null
-
-        fun getInstance(): MosqueAdminRepository {
-            return INSTANCE ?: synchronized(this) {
-                val instance = MosqueAdminRepository()
-                INSTANCE = instance
-                instance
-            }
         }
     }
 }

@@ -8,6 +8,8 @@ import com.example.data.firebase.MosqueAdminRepository
 import com.example.data.model.AppNotification
 import com.example.data.model.NotificationCategory
 import com.example.data.repository.MosqueRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,8 +31,10 @@ sealed interface AdminNotificationUiState {
     data class Error(val message: String) : AdminNotificationUiState
 }
 
-class AdminNotificationViewModel(
-    private val adminRepo: MosqueAdminRepository = MosqueAdminRepository.getInstance()
+@HiltViewModel
+class AdminNotificationViewModel @Inject constructor(
+    private val adminRepo: MosqueAdminRepository,
+    private val mosqueRepository: MosqueRepository
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<AdminUser?>(null)
@@ -40,7 +44,7 @@ class AdminNotificationViewModel(
     val actionMessage: StateFlow<String?> = _actionMessage.asStateFlow()
 
     val uiState: StateFlow<AdminNotificationUiState> = combine(
-        MosqueRepository.notificationsFlow,
+        mosqueRepository.notificationsFlow,
         _currentUser
     ) { notifications, user ->
         val canEdit = user == null || PermissionManager.canSendNotifications(user)
@@ -85,7 +89,7 @@ class AdminNotificationViewModel(
 
     fun clearAllNotifications() {
         viewModelScope.launch {
-            MosqueRepository.clearAllNotifications()
+            mosqueRepository.clearAllNotifications()
             _actionMessage.value = "সকল নোটিফিকেশন হিস্ট্রি মুছে ফেলা হয়েছে"
         }
     }

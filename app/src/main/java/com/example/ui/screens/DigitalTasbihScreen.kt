@@ -99,15 +99,17 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @Composable
 fun DigitalTasbihScreen(
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DigitalTasbihViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val db = remember { AppDatabase.getInstance(context) }
-    val savedRecordsEntities by db.tasbihDao().getAllRecordsFlow().collectAsState(initial = emptyList())
+    val savedRecordsEntities by viewModel.savedRecords.collectAsState()
 
     val dhikrs = MosqueRepository.dhikrList
     var selectedDhikr by remember { mutableStateOf(dhikrs.first()) }
@@ -174,9 +176,9 @@ fun DigitalTasbihScreen(
             triggerFeedback(isTarget = true)
             showTargetReachedDialog = true
             // Save to Room database
-            coroutineScope.launch(Dispatchers.IO) {
+            coroutineScope.launch {
                 val dateStr = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date())
-                db.tasbihDao().insertRecord(
+                viewModel.saveRecord(
                     TasbihRecordEntity.fromDomainModel(
                         TasbihRecord(
                             id = UUID.randomUUID().toString(),

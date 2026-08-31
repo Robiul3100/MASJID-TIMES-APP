@@ -8,6 +8,8 @@ import com.example.data.firebase.MosqueAdminRepository
 import com.example.data.model.NoticeCategory
 import com.example.data.model.NoticeItem
 import com.example.data.repository.MosqueRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,8 +32,10 @@ sealed interface AdminNoticeUiState {
     data class Error(val message: String) : AdminNoticeUiState
 }
 
-class AdminNoticeViewModel(
-    private val adminRepo: MosqueAdminRepository = MosqueAdminRepository.getInstance()
+@HiltViewModel
+class AdminNoticeViewModel @Inject constructor(
+    private val adminRepo: MosqueAdminRepository,
+    private val mosqueRepository: MosqueRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -47,7 +51,7 @@ class AdminNoticeViewModel(
     val actionMessage: StateFlow<String?> = _actionMessage.asStateFlow()
 
     val uiState: StateFlow<AdminNoticeUiState> = combine(
-        MosqueRepository.noticesFlow,
+        mosqueRepository.noticesFlow,
         _searchQuery,
         _selectedCategory,
         _currentUser

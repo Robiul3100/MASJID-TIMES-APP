@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 sealed interface AdminEmergencyUiState {
     object Loading : AdminEmergencyUiState
@@ -32,8 +34,10 @@ sealed interface AdminEmergencyUiState {
     data class Error(val message: String) : AdminEmergencyUiState
 }
 
-class AdminEmergencyViewModel(
-    private val adminRepo: MosqueAdminRepository = MosqueAdminRepository.getInstance()
+@HiltViewModel
+class AdminEmergencyViewModel @Inject constructor(
+    private val adminRepo: MosqueAdminRepository,
+    private val mosqueRepository: MosqueRepository
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<AdminUser?>(null)
@@ -43,8 +47,8 @@ class AdminEmergencyViewModel(
     val actionMessage: StateFlow<String?> = _actionMessage.asStateFlow()
 
     val uiState: StateFlow<AdminEmergencyUiState> = combine(
-        MosqueRepository.janazaNoticesFlow,
-        MosqueRepository.emergencyAlertsFlow,
+        mosqueRepository.janazaNoticesFlow,
+        mosqueRepository.emergencyAlertsFlow,
         _currentUser
     ) { janazaList, alerts, user ->
         val canEdit = user == null || PermissionManager.canSendEmergencyAnnouncement(user)

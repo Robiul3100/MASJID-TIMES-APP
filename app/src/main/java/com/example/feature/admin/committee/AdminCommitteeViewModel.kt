@@ -3,10 +3,12 @@ package com.example.feature.admin.committee
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.firebase.AuthRepository
+import com.example.data.firebase.MosqueAdminRepository
 import com.example.data.model.AuditActionCategory
 import com.example.data.model.CommitteeCategory
 import com.example.data.model.CommitteeMember
 import com.example.data.repository.MosqueRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class AdminCommitteeUiState(
     val members: List<CommitteeMember> = emptyList(),
@@ -26,7 +29,12 @@ data class AdminCommitteeUiState(
     val userMessage: String? = null
 )
 
-class AdminCommitteeViewModel : ViewModel() {
+@HiltViewModel
+class AdminCommitteeViewModel @Inject constructor(
+    private val adminRepo: MosqueAdminRepository,
+    private val authRepository: AuthRepository,
+    private val mosqueRepository: MosqueRepository
+) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<CommitteeCategory?>(null)
     private val _searchQuery = MutableStateFlow("")
@@ -36,7 +44,7 @@ class AdminCommitteeViewModel : ViewModel() {
     private val _userMessage = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<AdminCommitteeUiState> = combine(
-        MosqueRepository.committeeFlow,
+        mosqueRepository.committeeFlow,
         _selectedCategory,
         _searchQuery
     ) { members: List<CommitteeMember>, category: CommitteeCategory?, query: String ->
@@ -60,14 +68,6 @@ class AdminCommitteeViewModel : ViewModel() {
             isSubmitting = _isSubmitting.value,
             userMessage = _userMessage.value
         )
-    }.combine(_isAddEditOpen) { state, isOpen ->
-        state.copy(isAddEditOpen = isOpen)
-    }.combine(_editingMember) { state, editing ->
-        state.copy(editingMember = editing)
-    }.combine(_isSubmitting) { state, submitting ->
-        state.copy(isSubmitting = submitting)
-    }.combine(_userMessage) { state, message ->
-        state.copy(userMessage = message)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -82,87 +82,60 @@ class AdminCommitteeViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
-    fun openAddDialog() {
+    fun onAddClick() {
         _editingMember.value = null
         _isAddEditOpen.value = true
     }
 
-    fun openEditDialog(member: CommitteeMember) {
+    fun onEditClick(member: CommitteeMember) {
         _editingMember.value = member
         _isAddEditOpen.value = true
     }
 
-    fun closeDialog() {
+    fun onDismissDialog() {
         _isAddEditOpen.value = false
         _editingMember.value = null
     }
 
-    fun saveMember(
-        id: String,
-        name: String,
-        designationBn: String,
-        category: CommitteeCategory,
-        phone: String,
-        profession: String,
-        termYears: String
-    ) {
-        if (name.isBlank() || designationBn.isBlank()) {
-            _userMessage.value = "অনুগ্রহ করে সদস্যের নাম ও পদবী লিখুন"
-            return
-        }
-
+    fun onSaveMember(member: CommitteeMember) {
         viewModelScope.launch {
             _isSubmitting.value = true
-            val memberId = id.ifBlank { "m_${System.currentTimeMillis()}" }
-            val newMember = CommitteeMember(
-                id = memberId,
-                name = name.trim(),
-                designationBn = designationBn.trim(),
-                category = category,
-                phone = phone.trim(),
-                profession = profession.trim(),
-                termYears = termYears.ifBlank { "২০২৪-২০২৬" }.trim()
+            val admin = authRepository.currentUser.value
+            val result = adminRepo.saveCommitteeMembers(
+                mosqueRepository.committeeMembers.toMutableList().apply {
+                    val idx = indexOfFirst { it.id == member.id }
+                    if (idx >= 0) set(idx, member) else add(member)
+                },
+                admin
             )
-
-            val isNew = id.isBlank()
-            MosqueRepository.addOrUpdateCommitteeMember(newMember)
-
-            val admin = AuthRepository.getInstance().currentUser.value
-            val adminName = admin?.nameBn ?: "অ্যাডমিন"
-            val adminRole = admin?.role?.displayNameBn ?: "পরিচালক"
-
-            MosqueRepository.logAdminAction(
-                adminNameBn = adminName,
-                adminRoleBn = adminRole,
-                category = AuditActionCategory.COMMITTEE,
-                actionTitleBn = if (isNew) "কমিটিতে নতুন সদস্য যুক্ত হয়েছে" else "সদস্যের তথ্য আপডেট করা হয়েছে",
-                detailsBn = "${newMember.name} - ${newMember.designationBn} (${newMember.category.titleBn})"
-            )
-
+            
+            if (result.isSuccess) {
+                mosqueRepository.addOrUpdateCommitteeMember(member)
+                _userMessage.value = "কমিটি তথ্য সফলভাবে সংরক্ষিত হয়েছে"
+                onDismissDialog()
+            } else {
+                _userMessage.value = "ত্রুটি: ${result.exceptionOrNull()?.message}"
+            }
             _isSubmitting.value = false
-            _isAddEditOpen.value = false
-            _editingMember.value = null
-            _userMessage.value = if (isNew) "সদস্য সফলভাবে যুক্ত করা হয়েছে" else "সদস্যের তথ্য আপডেট হয়েছে"
         }
     }
 
-    fun deleteMember(member: CommitteeMember) {
+    fun onDeleteMember(memberId: String) {
         viewModelScope.launch {
-            MosqueRepository.deleteCommitteeMember(member.id)
-
-            val admin = AuthRepository.getInstance().currentUser.value
-            val adminName = admin?.nameBn ?: "অ্যাডমিন"
-            val adminRole = admin?.role?.displayNameBn ?: "পরিচালক"
-
-            MosqueRepository.logAdminAction(
-                adminNameBn = adminName,
-                adminRoleBn = adminRole,
-                category = AuditActionCategory.COMMITTEE,
-                actionTitleBn = "কমিটি থেকে সদস্য অপসারণ",
-                detailsBn = "অপসারিত: ${member.name} (${member.designationBn})"
+            _isSubmitting.value = true
+            val admin = authRepository.currentUser.value
+            val result = adminRepo.saveCommitteeMembers(
+                mosqueRepository.committeeMembers.filter { it.id != memberId },
+                admin
             )
 
-            _userMessage.value = "সদস্য অপসারণ করা হয়েছে"
+            if (result.isSuccess) {
+                mosqueRepository.deleteCommitteeMember(memberId)
+                _userMessage.value = "সদস্য তালিকা থেকে অপসারিত হয়েছে"
+            } else {
+                _userMessage.value = "মুছে ফেলা সম্ভব হয়নি"
+            }
+            _isSubmitting.value = false
         }
     }
 

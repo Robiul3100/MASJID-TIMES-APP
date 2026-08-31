@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.core.auth.AdminRole
 import com.example.core.auth.AdminUser
 import com.example.core.auth.PermissionManager
@@ -46,7 +46,7 @@ fun AdminDashboardScreen(
     onNavigateToActivityLogs: () -> Unit = {},
     onExitAdmin: () -> Unit,
     modifier: Modifier = Modifier,
-    authViewModel: AdminAuthViewModel = viewModel()
+    authViewModel: AdminAuthViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsState()
     val adminRole = currentUser?.role ?: AdminRole.SUPER_ADMIN
