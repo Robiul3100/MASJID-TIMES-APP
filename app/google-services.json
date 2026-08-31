@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "624744837771",
+    "project_id": "mosquetimeapp",
+    "storage_bucket": "mosquetimeapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624744837771:android:91d960fa21dfd5024dda8e",
+        "android_client_info": {
+          "package_name": "com.robiul.mosquetime"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCazoymLA9dfC1ici-smo8w5b2mXj1O-8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,13 +13,13 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Magnetometer and Accelerometer Hardware Features for Qibla Compass -->
+    <!-- Magnetometer and Accelerometer Hardware Features for Qibla Compass (Optional for broader device compatibility) -->
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
-        android:required="true" />
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.sensor.compass"
-        android:required="true" />
+        android:required="false" />
 
     <application
         android:name=".MosqueApplication"
