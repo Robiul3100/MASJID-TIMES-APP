@@ -47,9 +47,38 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.example.ACTION_PRAYER_ALARM" />
+                <action android:name="com.robiul.mosquetime.ACTION_PRAYER_ALARM" />
             </intent-filter>
         </receiver>
+
+        <!-- BroadcastReceiver for restoring Prayer Alarms on Device Boot / Reboot -->
+        <receiver
+            android:name=".receiver.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Firebase Cloud Messaging (FCM) Service for Realtime Push Notifications -->
+        <service
+            android:name=".service.MasjidFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Default FCM notification metadata -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="channel_mosque_announcements" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_foreground" />
 
         <!-- Home Screen Widget Provider -->
         <receiver
@@ -63,5 +92,4 @@
                 android:resource="@xml/prayer_widget_info" />
         </receiver>
     </application>
-
 </manifest>
