@@ -1,0 +1,8 @@
+{
+  "name": "Chowdhury Patwary Bari Jame Mosque",
+  "description": "Smart Mosque App with Qibla Compass, AlarmManager Prayer Audio Reminders, Haptic Tactile Feedback, Prayer Times, and Digital Notice Board",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

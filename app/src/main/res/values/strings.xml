@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">চৌধুরী পাটোয়ারী বাড়ি জামে মসজিদ</string>
+    <string name="mosque_short_name">চৌধুরী পাটোয়ারী বাড়ি</string>
+    <string name="mosque_type_bn">জামে মসজিদ</string>
+    <string name="channel_prayer_alerts_name">নামাজের সময়সূচি ও আজান এলার্ট</string>
+    <string name="channel_prayer_alerts_desc">ওয়াক্তভিত্তিক নামাজের সময়সূচি ও ইসলামিক স্মরণবার্তা</string>
+</resources>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Golden Arch Sunrise -->
+    <path
+        android:pathData="M16,92 C16,56 32,46 54,46 C76,46 92,56 92,92 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="46"
+                android:endX="54"
+                android:endY="92"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFE082" />
+                <item android:offset="0.3" android:color="#FFD54F" />
+                <item android:offset="1.0" android:color="#FF8F00" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Top Crescent -->
+    <path
+        android:pathData="M54,10 C46.5,10 40,16.5 40,25 C40,33.5 46.5,40 55,40 C57.5,40 59.8,39.4 62,38.2 C54.5,36.5 48.5,30 48.5,23.5 C48.5,17 53.5,11.8 60.5,10.8 C58.5,10.3 56.3,10 54,10 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="40"
+                android:startY="10"
+                android:endX="62"
+                android:endY="40"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFF9C4" />
+                <item android:offset="0.5" android:color="#FFD54F" />
+                <item android:offset="1.0" android:color="#E65100" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Mosque Silhouette -->
+    <path
+        android:pathData="M43,80 C43,62 65,62 65,80 L65,92 L43,92 Z"
+        android:fillColor="#0D3B1D" />
+
+    <path
+        android:pathData="M27.5,68 L29.5,68 L29.5,92 L27.5,92 Z"
+        android:fillColor="#092B15" />
+    <path
+        android:pathData="M78.5,68 L80.5,68 L80.5,92 L78.5,92 Z"
+        android:fillColor="#092B15" />
+</vector>

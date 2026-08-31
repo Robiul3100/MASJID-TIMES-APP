@@ -1,0 +1,286 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1500dp"
+    android:height="1000dp"
+    android:viewportWidth="1500"
+    android:viewportHeight="1000">
+
+    <!-- OUTER NEON GREEN ARCH DOME OUTLINE -->
+    <path
+        android:pathData="M 65,980 L 65,540 C 65,300 240,180 430,140 C 520,120 660,110 750,20 C 840,110 980,120 1070,140 C 1260,180 1435,300 1435,540 L 1435,980"
+        android:strokeColor="#39FF14"
+        android:strokeWidth="10"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- INNER ACCENT GREEN ARCH DOME LINE -->
+    <path
+        android:pathData="M 82,980 L 82,545 C 82,315 250,200 435,160 C 530,140 665,130 750,45 C 835,130 970,140 1065,160 C 1250,200 1418,315 1418,545 L 1418,980"
+        android:strokeColor="#00C853"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+
+    <!-- TOP CALLIGRAPHY 3 MINARET FINIALS -->
+    <!-- Center Finial -->
+    <path
+        android:pathData="M 750,90 L 750,115 M 742,115 C 742,105 750,98 750,98 C 750,98 758,105 758,115 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0091EA"
+        android:strokeWidth="2" />
+    <path
+        android:pathData="M 750,86 m -3,0 a 3,3 0 1,1 6,0 a 3,3 0 1,1 -6,0"
+        android:fillColor="#00E5FF" />
+
+    <!-- Left Finial -->
+    <path
+        android:pathData="M 728,100 L 728,120 M 722,120 C 722,112 728,106 728,106 C 728,106 734,112 734,120 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0091EA"
+        android:strokeWidth="1.5" />
+    <path
+        android:pathData="M 728,97 m -2.5,0 a 2.5,2.5 0 1,1 5,0 a 2.5,2.5 0 1,1 -5,0"
+        android:fillColor="#00E5FF" />
+
+    <!-- Right Finial -->
+    <path
+        android:pathData="M 772,100 L 772,120 M 766,120 C 766,112 772,106 772,106 C 772,106 778,112 778,120 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0091EA"
+        android:strokeWidth="1.5" />
+    <path
+        android:pathData="M 772,97 m -2.5,0 a 2.5,2.5 0 1,1 5,0 a 2.5,2.5 0 1,1 -5,0"
+        android:fillColor="#00E5FF" />
+
+    <!-- ARCHED GREEN BANNER RIBBON (Background & Outlines) -->
+    <path
+        android:pathData="M 270,455 C 410,340 570,240 750,230 C 930,240 1090,340 1230,455 L 1180,550 C 1040,435 890,345 750,335 C 610,345 460,435 320,550 Z"
+        android:fillColor="#001B0E"
+        android:strokeColor="#00E676"
+        android:strokeWidth="5" />
+
+    <path
+        android:pathData="M 285,465 C 420,355 575,255 750,245 C 925,255 1080,355 1215,465"
+        android:strokeColor="#39FF14"
+        android:strokeWidth="2" />
+
+    <path
+        android:pathData="M 335,535 C 470,425 615,335 750,325 C 885,335 1030,425 1165,535"
+        android:strokeColor="#39FF14"
+        android:strokeWidth="2" />
+
+    <!-- LEFT FLORAL FLOURISH & BLUE 4-PETAL FLOWER -->
+    <!-- Blue 4-petal flower -->
+    <path
+        android:pathData="M 190,470 C 175,470 170,485 190,500 C 170,515 175,530 190,530 C 205,530 210,515 190,500 C 210,485 205,470 190,470 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0288D1"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 160,500 C 160,485 175,480 190,500 C 205,480 220,485 220,500 C 220,515 205,520 190,500 C 175,520 160,515 160,500 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0288D1"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 190,500 m -5,0 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Yellow Flower Bud Left -->
+    <path
+        android:pathData="M 155,600 m -16,0 a 16,16 0 1,1 32,0 a 16,16 0 1,1 -32,0"
+        android:fillColor="#FFEB3B"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 142,595 m -9,0 a 9,9 0 1,1 18,0 a 9,9 0 1,1 -18,0"
+        android:fillColor="#FFD600" />
+
+    <!-- Silver Arabesque Flourishes Left -->
+    <path
+        android:pathData="M 165,510 C 140,535 170,570 160,610 C 150,645 175,680 190,710"
+        android:strokeColor="#B0BEC5"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M 175,550 C 160,565 175,585 180,605"
+        android:strokeColor="#90A4AE"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+
+    <!-- RIGHT FLORAL FLOURISH & BLUE 4-PETAL FLOWER -->
+    <!-- Blue 4-petal flower -->
+    <path
+        android:pathData="M 1310,470 C 1295,470 1290,485 1310,500 C 1290,515 1295,530 1310,530 C 1325,530 1330,515 1310,500 C 1330,485 1325,470 1310,470 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0288D1"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 1280,500 C 1280,485 1295,480 1310,500 C 1325,480 1340,485 1340,500 C 1340,515 1325,520 1310,500 C 1295,520 1280,515 1280,500 Z"
+        android:fillColor="#00B0FF"
+        android:strokeColor="#0288D1"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 1310,500 m -5,0 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Yellow Flower Bud Right -->
+    <path
+        android:pathData="M 1345,600 m -16,0 a 16,16 0 1,1 32,0 a 16,16 0 1,1 -32,0"
+        android:fillColor="#FFEB3B"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M 1358,595 m -9,0 a 9,9 0 1,1 18,0 a 9,9 0 1,1 -18,0"
+        android:fillColor="#FFD600" />
+
+    <!-- Silver Arabesque Flourishes Right -->
+    <path
+        android:pathData="M 1335,510 C 1360,535 1330,570 1340,610 C 1350,645 1325,680 1310,710"
+        android:strokeColor="#B0BEC5"
+        android:strokeWidth="4"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M 1325,550 C 1340,565 1325,585 1320,605"
+        android:strokeColor="#90A4AE"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+
+    <!-- LEFT 3D MINARET -->
+    <!-- Red Spire Dome & Finial -->
+    <path
+        android:pathData="M 115,710 C 115,675 125,660 125,640 C 125,660 135,675 135,710 Z"
+        android:fillColor="#D32F2F"
+        android:strokeColor="#B71C1C"
+        android:strokeWidth="2" />
+    <path
+        android:pathData="M 125,635 m -4,0 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0"
+        android:fillColor="#FFD700" />
+    <path
+        android:pathData="M 125,627 L 125,635"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2.5" />
+
+    <!-- Upper Gold Balcony Roof -->
+    <path
+        android:pathData="M 100,710 L 150,710 L 145,722 L 105,722 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="2" />
+
+    <!-- Balcony Chamber with Arched Windows -->
+    <path
+        android:pathData="M 106,722 L 144,722 L 144,760 L 106,760 Z"
+        android:fillColor="#FFF9C4"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="2" />
+    <!-- 3 Arched Windows -->
+    <path
+        android:pathData="M 111,730 L 118,730 L 118,748 L 111,748 Z"
+        android:fillColor="#263238" />
+    <path
+        android:pathData="M 121.5,730 L 128.5,730 L 128.5,748 L 121.5,748 Z"
+        android:fillColor="#263238" />
+    <path
+        android:pathData="M 132,730 L 139,730 L 139,748 L 132,748 Z"
+        android:fillColor="#263238" />
+
+    <!-- Mid Red Ring & Gold Cornice -->
+    <path
+        android:pathData="M 103,760 L 147,760 L 147,770 L 103,770 Z"
+        android:fillColor="#D32F2F" />
+    <path
+        android:pathData="M 100,770 L 150,770 L 150,780 L 100,780 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="1.5" />
+
+    <!-- Yellow Main Shaft -->
+    <path
+        android:pathData="M 108,780 L 142,780 L 142,880 L 108,880 Z"
+        android:fillColor="#FFEE58"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="2" />
+
+    <!-- Lower Gold Ring -->
+    <path
+        android:pathData="M 103,880 L 147,880 L 147,892 L 103,892 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="1.5" />
+
+    <!-- Red Base Section -->
+    <path
+        android:pathData="M 106,892 L 144,892 L 144,980 L 106,980 Z"
+        android:fillColor="#D32F2F"
+        android:strokeColor="#B71C1C"
+        android:strokeWidth="2" />
+
+    <!-- RIGHT 3D MINARET -->
+    <!-- Red Spire Dome & Finial -->
+    <path
+        android:pathData="M 1365,710 C 1365,675 1375,660 1375,640 C 1375,660 1385,675 1385,710 Z"
+        android:fillColor="#D32F2F"
+        android:strokeColor="#B71C1C"
+        android:strokeWidth="2" />
+    <path
+        android:pathData="M 1375,635 m -4,0 a 4,4 0 1,1 8,0 a 4,4 0 1,1 -8,0"
+        android:fillColor="#FFD700" />
+    <path
+        android:pathData="M 1375,627 L 1375,635"
+        android:strokeColor="#FFD700"
+        android:strokeWidth="2.5" />
+
+    <!-- Upper Gold Balcony Roof -->
+    <path
+        android:pathData="M 1350,710 L 1400,710 L 1395,722 L 1355,722 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="2" />
+
+    <!-- Balcony Chamber with Arched Windows -->
+    <path
+        android:pathData="M 1356,722 L 1394,722 L 1394,760 L 1356,760 Z"
+        android:fillColor="#FFF9C4"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="2" />
+    <!-- 3 Arched Windows -->
+    <path
+        android:pathData="M 1361,730 L 1368,730 L 1368,748 L 1361,748 Z"
+        android:fillColor="#263238" />
+    <path
+        android:pathData="M 1371.5,730 L 1378.5,730 L 1378.5,748 L 1371.5,748 Z"
+        android:fillColor="#263238" />
+    <path
+        android:pathData="M 1382,730 L 1389,730 L 1389,748 L 1382,748 Z"
+        android:fillColor="#263238" />
+
+    <!-- Mid Red Ring & Gold Cornice -->
+    <path
+        android:pathData="M 1353,760 L 1397,760 L 1397,770 L 1353,770 Z"
+        android:fillColor="#D32F2F" />
+    <path
+        android:pathData="M 1350,770 L 1400,770 L 1400,780 L 1350,780 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="1.5" />
+
+    <!-- Yellow Main Shaft -->
+    <path
+        android:pathData="M 1358,780 L 1392,780 L 1392,880 L 1358,880 Z"
+        android:fillColor="#FFEE58"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="2" />
+
+    <!-- Lower Gold Ring -->
+    <path
+        android:pathData="M 1353,880 L 1397,880 L 1397,892 L 1353,892 Z"
+        android:fillColor="#FDD835"
+        android:strokeColor="#F57F17"
+        android:strokeWidth="1.5" />
+
+    <!-- Red Base Section -->
+    <path
+        android:pathData="M 1356,892 L 1394,892 L 1394,980 L 1356,980 Z"
+        android:fillColor="#D32F2F"
+        android:strokeColor="#B71C1C"
+        android:strokeWidth="2" />
+</vector>

@@ -1,0 +1,35 @@
+package com.example.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Islamic Modern Dark Theme Palette
+val PrimaryGreen = Color(0xFF00E676)
+val PrimaryGreenDark = Color(0xFF00B0FF)
+val NeonAccent = Color(0xFF39FF14)
+val NeonGreenGlow = Color(0xFF39FF14)
+val EmeraldDeep = Color(0xFF0A2618)
+val DarkGreen = Color(0xFF0A2E20)
+val DarkGreenBorder = Color(0xFF1E362A)
+val DarkBackground = Color(0xFF0B1115)
+val DarkSurface = Color(0xFF121D24)
+val DarkSurfaceElevated = Color(0xFF192730)
+val DarkSurfaceBorder = Color(0xFF1E362A)
+val SurfaceBorder = Color(0xFF1E362A)
+val GoldAccent = Color(0xFFFFD54F)
+val GoldWarm = Color(0xFFFFB300)
+val GoldGlow = Color(0x40FFD54F)
+val AmberGlow = Color(0xFFFF9100)
+val RedDigital = Color(0xFFFF1744)
+val RedDigitalDim = Color(0x33FF1744)
+val GreenDigital = Color(0xFF00E676)
+val GreenDigitalDim = Color(0x3300E676)
+val CyanAccent = Color(0xFF00E5FF)
+val CyanBlue = Color(0xFF00E5FF)
+val CyanBlueDim = Color(0x3300E5FF)
+val BlueAccent = Color(0xFF2979FF)
+val PurpleAccent = Color(0xFF7C4DFF)
+
+val TextWhite = Color(0xFFFFFFFF)
+val TextMuted = Color(0xFF8FA3B0)
+val TextSubtle = Color(0xFF5A7080)
+val TextDark = Color(0xFF121212)
