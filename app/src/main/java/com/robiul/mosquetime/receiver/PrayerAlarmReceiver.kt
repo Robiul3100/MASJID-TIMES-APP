@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.receiver
+package com.robiul.mosquetime.receiver
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -52,6 +52,10 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val soundUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
+        val mosqueName = com.robiul.mosquetime.data.firebase.MosqueConfigManager.getInstance().activeMosque.value.nameBn.ifBlank {
+            "আপনার প্রিয় মসজিদ"
+        }
+
         // Create High Importance Notification Channel on Android 8.0+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val audioAttributes = AudioAttributes.Builder()
@@ -64,7 +68,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 "নামাজের সময়সূচি ও আজান এলার্ট",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "চৌধুরী পাটোয়ারী বাড়ি জামে মসজিদ - ওয়াক্তভিত্তিক নামাজের এলার্ট ও আজান স্মরণবার্তা"
+                description = "ওয়াক্তভিত্তিক নামাজের এলার্ট ও আজান স্মরণবার্তা"
                 enableLights(true)
                 lightColor = 0xFF00E676.toInt()
                 enableVibration(true)
@@ -89,13 +93,13 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle("🕌 $prayerTitle ($prayerName)")
-            .setContentText("চৌধুরী পাটোয়ারী বাড়ি জামে মসজিদ — $prayerName এর ওয়াক্ত শুরু হয়েছে ($prayerTime)")
+            .setContentText("$mosqueName — $prayerName এর ওয়াক্ত শুরু হয়েছে ($prayerTime)")
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(
                         "আস-সালাতু খাইরুম মিনান নাওম / নামাজের সময় হয়েছে।\n" +
                                 "ওয়াক্ত: $prayerName ($prayerTime)\n" +
-                                "মসজিদ: চৌধুরী পাটোয়ারী বাড়ি জামে মসজিদ"
+                                "মসজিদ: $mosqueName"
                     )
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)

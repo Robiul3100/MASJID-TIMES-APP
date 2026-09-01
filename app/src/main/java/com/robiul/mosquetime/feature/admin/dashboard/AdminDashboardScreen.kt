@@ -49,6 +49,7 @@ fun AdminDashboardScreen(
     onNavigateToFatwas: () -> Unit = {},
     onNavigateToDonations: () -> Unit = {},
     onNavigateToActivityLogs: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     onExitAdmin: () -> Unit,
     modifier: Modifier = Modifier,
     authViewModel: AdminAuthViewModel = hiltViewModel(),
@@ -97,6 +98,13 @@ fun AdminDashboardScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Outlined.ManageAccounts,
+                            contentDescription = "অ্যাডমিন ও রোল সেটিংস",
+                            tint = GoldAccent
+                        )
+                    }
                     IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ExitToApp,
@@ -516,6 +524,30 @@ fun AdminDashboardScreen(
                             accentColor = TextMuted,
                             badgeText = "অডিট লগ",
                             onClick = onNavigateToActivityLogs,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Row 7: Admin & Role Settings + Mosque Database Isolation
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        AdminBentoCard(
+                            title = "অ্যাডমিন ও রোল",
+                            subtitle = "মুল অ্যাডমিন ও মডারেটর নিয়ন্ত্রণ",
+                            icon = Icons.Outlined.ManageAccounts,
+                            accentColor = GoldAccent,
+                            badgeText = "রোল ও পারমিশন",
+                            badgeColor = GoldAccent,
+                            onClick = onNavigateToSettings,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        AdminBentoCard(
+                            title = "মসজিদ ডাটাবেস",
+                            subtitle = "মাল্টি-মসজিদ ক্লাউড কনফিগ",
+                            icon = Icons.Outlined.Storage,
+                            accentColor = PrimaryGreen,
+                            badgeText = "আইসোলেশন",
+                            onClick = onNavigateToSettings,
                             modifier = Modifier.weight(1f)
                         )
                     }

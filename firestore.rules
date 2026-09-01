@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'rsf.robiul@gmail.com' ||
+        request.auth.token.role == 'SUPER_ADMIN'
+      );
+    }
+
+    // Public Read / Admin Write for all mosque partition documents
+    match /mosques/{mosqueId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+
+      match /{allSubcollections=**} {
+        allow read: if true;
+        allow write: if isAuthenticated();
+      }
+    }
+
+    // Admin Users Directory
+    match /adminUsers/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // FCM Broadcasts & Notifications
+    match /fcm_broadcasts/{broadcastId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // FCM Device Tokens
+    match /fcm_tokens/{tokenId} {
+      allow read, write: if true;
+    }
+
+    // General fallback for all other collections
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+  }
+}

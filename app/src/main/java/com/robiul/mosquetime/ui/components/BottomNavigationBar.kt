@@ -92,29 +92,49 @@ enum class BottomNavItem(
 ) {
     HOME("হোম", Screen.Home.route, "nav_home"),
     SCHEDULE("সময়সূচি", Screen.DailyPrayer.route, "nav_schedule"),
-    DUA("দোয়া", Screen.DuaDhikr.route, "nav_dua"),
+    DUA("দোয়া", Screen.DuaDhikr.route, "nav_dua"),
     HUJUR_KHANA("খানা সূচি", Screen.HujurKhana.route, "nav_khana"),
     SETTINGS("সেটিংস", Screen.Settings.route, "nav_settings");
 
     companion object {
         fun fromRoute(route: String?): BottomNavItem {
-            return when (route) {
-                Screen.DailyPrayer.route, Screen.MonthlySchedule.route -> SCHEDULE
-                Screen.DuaDhikr.route -> DUA
-                Screen.HujurKhana.route -> HUJUR_KHANA
-                Screen.Settings.route -> SETTINGS
+            if (route == null) return HOME
+            return when {
+                route == Screen.DailyPrayer.route ||
+                route == Screen.MonthlySchedule.route ||
+                route == Screen.IslamicCalendar.route ||
+                route == Screen.RamadanDashboard.route ||
+                route == Screen.QiblaCompass.route ||
+                route == Screen.Qibla.route -> SCHEDULE
+
+                route == Screen.DuaDhikr.route ||
+                route == Screen.Quran.route ||
+                route.startsWith("quran_surah_detail") ||
+                route == Screen.DigitalTasbih.route ||
+                route == Screen.ZakatCalculator.route -> DUA
+
+                route == Screen.HujurKhana.route -> HUJUR_KHANA
+
+                route == Screen.Settings.route ||
+                route == Screen.DeveloperProfile.route ||
+                route == Screen.HelpFaq.route -> SETTINGS
+
                 else -> HOME
             }
         }
 
         fun isPrimaryRoute(route: String?): Boolean {
-            return entries.any { it.route == route } ||
-                    route == Screen.Notifications.route ||
-                    route == Screen.MonthlySchedule.route ||
-                    route == Screen.NoticeBoard.route
+            return shouldShowBottomBar(route)
+        }
+
+        fun shouldShowBottomBar(route: String?): Boolean {
+            if (route == null) return true
+            // Hide bottom bar exclusively on Admin secure routes
+            return !route.startsWith("admin_")
         }
     }
 }
+
 
 /**
  * Ultra-Smooth Modern Liquid Moving Notch Bottom Navigation Bar in 100% Jetpack Compose.

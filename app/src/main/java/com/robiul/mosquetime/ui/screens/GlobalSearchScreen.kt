@@ -204,6 +204,24 @@ fun GlobalSearchScreen(
 
             // 7. Search Hujur's Khana
             com.robiul.mosquetime.data.repository.MockMealScheduleRepository.daySchedules.value.forEach { day ->
+                val matchesDayHost = day.hostHouseholdName.contains(query, ignoreCase = true) ||
+                        day.hostResponsiblePerson.contains(query, ignoreCase = true) ||
+                        day.hostArea.contains(query, ignoreCase = true) ||
+                        (day.hostPhoneNumber != null && day.hostPhoneNumber.contains(query, ignoreCase = true))
+
+                if (matchesDayHost) {
+                    list.add(
+                        SearchResultItem(
+                            title = "মেহমানদারী: ${day.hostHouseholdName}",
+                            subtitle = "${day.hostResponsiblePerson} (${day.hostArea}) • ${day.dateBn} • ${day.rotationTurnBn}",
+                            category = SearchCategoryScope.HUJUR_KHANA,
+                            targetRoute = Screen.HujurKhana.route,
+                            icon = Icons.Outlined.Restaurant,
+                            iconTint = NeonGreenGlow
+                        )
+                    )
+                }
+
                 day.allMeals.forEach { meal ->
                     if (meal.responsiblePersonName.contains(query, ignoreCase = true) ||
                         meal.householdName.contains(query, ignoreCase = true) ||
@@ -212,16 +230,18 @@ fun GlobalSearchScreen(
                         "হুজুরের খানা".contains(query, ignoreCase = true) ||
                         "খানা".contains(query, ignoreCase = true)
                     ) {
-                        list.add(
-                            SearchResultItem(
-                                title = "${meal.mealType.titleBn}: ${meal.householdName}",
-                                subtitle = "${meal.responsiblePersonName} • ${day.dateBn} • ${meal.status.titleBn}",
-                                category = SearchCategoryScope.HUJUR_KHANA,
-                                targetRoute = Screen.HujurKhana.route,
-                                icon = Icons.Outlined.Restaurant,
-                                iconTint = NeonGreenGlow
+                        if (!matchesDayHost) {
+                            list.add(
+                                SearchResultItem(
+                                    title = "${meal.mealType.titleBn}: ${meal.householdName}",
+                                    subtitle = "${meal.responsiblePersonName} • ${day.dateBn} • ${meal.status.titleBn}",
+                                    category = SearchCategoryScope.HUJUR_KHANA,
+                                    targetRoute = Screen.HujurKhana.route,
+                                    icon = Icons.Outlined.Restaurant,
+                                    iconTint = NeonGreenGlow
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }

@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.feature.admin.meals
+package com.robiul.mosquetime.feature.admin.meals
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -134,7 +134,35 @@ class AdminMealsViewModel(
         }
     }
 
-    fun addHousehold(name: String, responsible: String, area: String, phone: String) {
+    fun updateDayHost(
+        dateStr: String,
+        householdName: String,
+        responsiblePerson: String,
+        area: String,
+        phone: String?,
+        notes: String? = null
+    ) {
+        viewModelScope.launch {
+            repository.updateDayHost(
+                dateStr = dateStr,
+                householdName = householdName,
+                responsiblePerson = responsiblePerson,
+                area = area,
+                phone = phone,
+                notes = notes
+            )
+            _actionMessage.value = "দিনের দায়িত্বশীল পরিবার পরিবর্তন করা হয়েছে"
+        }
+    }
+
+    fun deleteDaySchedule(dateStr: String) {
+        viewModelScope.launch {
+            repository.deleteDaySchedule(dateStr)
+            _actionMessage.value = "দিনের শিডিউল মুছে ফেলা হয়েছে"
+        }
+    }
+
+    fun addHousehold(name: String, responsible: String, area: String, phone: String, notes: String? = null) {
         viewModelScope.launch {
             val newHousehold = Household(
                 id = "h_" + UUID.randomUUID().toString().take(6),
@@ -142,10 +170,32 @@ class AdminMealsViewModel(
                 responsiblePersonName = responsible,
                 area = area,
                 phoneNumber = phone,
+                notes = notes,
                 totalServedCount = 0
             )
             repository.addHousehold(newHousehold)
-            _actionMessage.value = "নতুন পরিবার ডাটাবেজে যুক্ত হয়েছে"
+            _actionMessage.value = "নতুন পরিবার রোটেশন তালিকায় যুক্ত হয়েছে"
+        }
+    }
+
+    fun updateHousehold(household: Household) {
+        viewModelScope.launch {
+            repository.updateHousehold(household)
+            _actionMessage.value = "পরিবারের তথ্য আপডেট করা হয়েছে"
+        }
+    }
+
+    fun deleteHousehold(householdId: String) {
+        viewModelScope.launch {
+            repository.deleteHousehold(householdId)
+            _actionMessage.value = "পরিবার রোটেশন তালিকা থেকে মুছে ফেলা হয়েছে"
+        }
+    }
+
+    fun generateMonthlyRotation(startDateStr: String? = null) {
+        viewModelScope.launch {
+            repository.generateMonthlyRotation(startDateStr)
+            _actionMessage.value = "১৫ পরিবারের ৩০ দিনের রোটেশন শিডিউল সফলভাবে তৈরি হয়েছে"
         }
     }
 

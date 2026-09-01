@@ -486,7 +486,7 @@ class MosqueAdminRepository @Inject constructor() {
                 "updatedBy" to (adminUser?.nameBn ?: "Admin")
             )
 
-            firestore.document("${FirestoreCollections.DEFAULT_MOSQUE_ID}/${FirestoreCollections.COMMITTEE}/list")
+            firestore.document(FirestoreCollections.committeeDoc())
                 .set(data, SetOptions.merge())
                 .await()
 
@@ -738,7 +738,7 @@ class MosqueAdminRepository @Inject constructor() {
                     else -> "all_announcements"
                 }
             )
-            firestore.document("${FirestoreCollections.DEFAULT_MOSQUE_ID}/fcm_broadcasts/${notification.id}")
+            firestore.document("${FirestoreCollections.fcmBroadcastsCollection()}/${notification.id}")
                 .set(fcmBroadcastData, SetOptions.merge())
                 .await()
 

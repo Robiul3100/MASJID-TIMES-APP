@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.data.model
+package com.robiul.mosquetime.data.model
 
 /**
  * Meal types for Imam's food schedule in Bangladeshi mosque system
@@ -98,7 +98,7 @@ data class MealSchedule(
 )
 
 /**
- * Daily schedule grouping all 3 meals for a specific date
+ * Daily schedule where ONE household is responsible for all 3 meals of that day
  */
 data class DayMealSchedule(
     val dateStr: String, // yyyy-MM-dd
@@ -106,6 +106,12 @@ data class DayMealSchedule(
     val dayNameBn: String, // e.g. "শুক্রবার"
     val relativeDayLabelBn: String, // "আজ", "কাল", "পরশু", or formatted day
     val hijriDateBn: String, // e.g. "১৫ সফর ১৪৪৮"
+    val hostHouseholdName: String,
+    val hostResponsiblePerson: String,
+    val hostPhoneNumber: String? = null,
+    val hostArea: String = "উত্তর পাড়া",
+    val rotationTurnBn: String = "রোটেশন: ০১/১৫ (১ম বার)",
+    val notes: String? = null,
     val morningMeal: MealSchedule,
     val lunchMeal: MealSchedule,
     val dinnerMeal: MealSchedule,
@@ -134,17 +140,22 @@ data class MealWeeklySummary(
     val deliveredCount: Int,
     val pendingCount: Int,
     val missedCount: Int,
-    val upcomingCount: Int
+    val upcomingCount: Int,
+    val totalHouseholdsCount: Int = 15,
+    val daysInCycleCount: Int = 30
 )
 
 /**
- * Registered household in the mosque community
+ * Registered household in the mosque community roster
  */
 data class Household(
     val id: String,
+    val serialNumber: Int = 1, // e.g. 1 to 15
     val householdName: String,
     val responsiblePersonName: String,
     val area: String,
     val phoneNumber: String? = null,
+    val notes: String? = null,
     val totalServedCount: Int = 0
 )
+

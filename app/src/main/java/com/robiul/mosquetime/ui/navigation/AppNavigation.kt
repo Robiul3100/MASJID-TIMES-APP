@@ -39,6 +39,7 @@ import com.robiul.mosquetime.feature.admin.notices.AdminNoticeScreen
 import com.robiul.mosquetime.feature.admin.notifications.AdminNotificationScreen
 import com.robiul.mosquetime.feature.admin.prayer.AdminPrayerScheduleScreen
 import com.robiul.mosquetime.feature.admin.profile.AdminMosqueProfileScreen
+import com.robiul.mosquetime.feature.admin.settings.AdminSettingsScreen
 import com.robiul.mosquetime.ui.MosqueHomeScreen
 import com.robiul.mosquetime.ui.components.BottomNavItem
 import com.robiul.mosquetime.ui.components.DrawerMenu
@@ -475,6 +476,7 @@ fun AppNavigation(
                         onNavigateToFatwas = { navController.navigate(Screen.AdminFatwa.route) },
                         onNavigateToDonations = { navController.navigate(Screen.AdminDonations.route) },
                         onNavigateToActivityLogs = { navController.navigate(Screen.AdminActivity.route) },
+                        onNavigateToSettings = { navController.navigate(Screen.AdminSettings.route) },
                         onExitAdmin = {
                             navController.navigate(Screen.Home.route) {
                                 popUpTo(Screen.Home.route) { inclusive = true }
@@ -484,6 +486,11 @@ fun AppNavigation(
                 }
 
                 // Sub-admin modules
+                composable(Screen.AdminSettings.route) {
+                    AdminSettingsScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
                 composable(Screen.AdminMosque.route) {
                     val authViewModel: AdminAuthViewModel = hiltViewModel()
                     val currentAdmin by authViewModel.currentUser.collectAsStateWithLifecycle()

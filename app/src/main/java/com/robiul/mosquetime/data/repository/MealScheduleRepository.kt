@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.data.repository
+package com.robiul.mosquetime.data.repository
 
 import com.robiul.mosquetime.data.model.DayMealSchedule
 import com.robiul.mosquetime.data.model.Household
@@ -24,9 +24,26 @@ interface MealScheduleRepository {
     fun getCurrentMealType(): MealType
     fun getTomorrowSchedule(): DayMealSchedule?
     
+    // Meal & Daily Host Operations
     fun updateMealStatus(scheduleId: String, newStatus: MealStatus, deliveredAt: String? = null)
     fun updateMealDetails(scheduleId: String, updatedMeal: MealSchedule)
+    fun updateDayHost(
+        dateStr: String,
+        householdName: String,
+        responsiblePerson: String,
+        area: String,
+        phone: String?,
+        notes: String? = null
+    )
+    fun addOrUpdateDaySchedule(daySchedule: DayMealSchedule)
+    fun deleteDaySchedule(dateStr: String)
+    
+    // Household Roster CRUD
     fun addHousehold(household: Household)
+    fun updateHousehold(household: Household)
+    fun deleteHousehold(householdId: String)
+    fun generateMonthlyRotation(startDateStr: String? = null)
+
     fun toggleReminder(scheduleId: String)
     fun updatePeriodConfig(config: MealPeriodConfig)
     
@@ -36,3 +53,4 @@ interface MealScheduleRepository {
         filterStatus: MealStatus?
     ): List<DayMealSchedule>
 }
+

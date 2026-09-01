@@ -236,7 +236,15 @@ fun HujurKhanaScreen(
                                     )
                                 }
 
-                                // 4. Interactive 7-Day Date Ribbon Selector
+                                // 4. 15-Family 30-Day Rotation Explainer Banner
+                                item {
+                                    com.robiul.mosquetime.ui.components.KhanaRotationInfoCard(
+                                        householdsCount = state.weeklySummary.totalHouseholdsCount,
+                                        modifier = Modifier.padding(horizontal = 14.dp)
+                                    )
+                                }
+
+                                // 5. Interactive 7-Day Date Ribbon Selector
                                 item {
                                     WeekDateSelector(
                                         schedules = state.allSchedules,

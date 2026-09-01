@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -85,12 +86,14 @@ fun HujurKhanaTopBar(
                 text = "হুজুরের খানা সূচি",
                 color = PrimaryGreen,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = SolaimanLipiFontFamily
             )
             Text(
-                text = "ইমাম সাহেবের মেহমানদারি তালিকা",
+                text = "ইমাম সাহেবের মেহমানদারি বণ্টন তালিকা",
                 color = TextMuted,
-                fontSize = 10.5.sp
+                fontSize = 10.5.sp,
+                fontFamily = SolaimanLipiFontFamily
             )
         }
 
@@ -130,7 +133,7 @@ fun HujurKhanaTopBar(
 }
 
 /**
- * Minimal Today's Hero Section with Clean 3-Meal Cards
+ * 1-Household-Per-Day Hero Section for Today's Host Family & 3 Meals
  */
 @Composable
 fun TodayKhanaHeroSection(
@@ -140,6 +143,7 @@ fun TodayKhanaHeroSection(
     modifier: Modifier = Modifier
 ) {
     if (todaySchedule == null) return
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -148,16 +152,16 @@ fun TodayKhanaHeroSection(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFF16251C),
-                        Color(0xFF0F1812)
+                        Color(0xFF172B1E),
+                        Color(0xFF0F1A13)
                     )
                 )
             )
-            .border(1.dp, PrimaryGreen.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
-            .padding(12.dp)
+            .border(1.dp, PrimaryGreen.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+            .padding(14.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header
+            // Header Row: Today label + Date + Rotation badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,7 +170,7 @@ fun TodayKhanaHeroSection(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(7.dp)
+                            .size(8.dp)
                             .clip(CircleShape)
                             .background(NeonGreenGlow)
                     )
@@ -175,21 +179,86 @@ fun TodayKhanaHeroSection(
                         text = "আজকের মেহমানদারি",
                         color = TextWhite,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = SolaimanLipiFontFamily
                     )
                 }
 
-                Text(
-                    text = "${todaySchedule.dayNameBn}, ${todaySchedule.dateBn}",
-                    color = GoldAccent,
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = DarkBackground.copy(alpha = 0.6f),
+                    border = BorderStroke(0.6.dp, GoldAccent.copy(alpha = 0.5f))
+                ) {
+                    Text(
+                        text = todaySchedule.rotationTurnBn,
+                        color = GoldAccent,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.5.dp),
+                        fontFamily = SolaimanLipiFontFamily
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 3 Clean Meal Slots
+            // Primary Host Highlight Card
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF1D3325),
+                border = BorderStroke(0.8.dp, PrimaryGreen.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = todaySchedule.hostHouseholdName,
+                            color = TextWhite,
+                            fontSize = 14.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = SolaimanLipiFontFamily
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "মেহমানদারীকারী: ${todaySchedule.hostResponsiblePerson} • ${todaySchedule.hostArea}",
+                            color = TextWhite.copy(alpha = 0.8f),
+                            fontSize = 11.5.sp,
+                            fontFamily = SolaimanLipiFontFamily
+                        )
+                    }
+
+                    if (!todaySchedule.hostPhoneNumber.isNullOrBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(PrimaryGreen)
+                                .clickable {
+                                    val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${todaySchedule.hostPhoneNumber}"))
+                                    context.startActivity(callIntent)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Call,
+                                contentDescription = "Call Host",
+                                tint = DarkBackground,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 3 Clean Meal Slots for Today
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf(todaySchedule.morningMeal, todaySchedule.lunchMeal, todaySchedule.dinnerMeal).forEach { meal ->
                     val isCurrent = currentMealType == meal.mealType
@@ -214,15 +283,13 @@ fun MinimalMealRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     val (typeIcon, typeColor) = when (meal.mealType) {
         MealType.MORNING -> Pair(Icons.Outlined.LightMode, GoldAccent)
         MealType.LUNCH -> Pair(Icons.Outlined.WbSunny, PrimaryGreen)
         MealType.DINNER -> Pair(Icons.Outlined.Bedtime, CyanBlue)
     }
 
-    val bg = if (isCurrent) EmeraldDeep.copy(alpha = 0.6f) else Color(0xFF121B15)
+    val bg = if (isCurrent) EmeraldDeep.copy(alpha = 0.7f) else Color(0xFF131F17)
     val borderCol = if (isCurrent) PrimaryGreen else DarkSurfaceBorder
 
     Row(
@@ -236,10 +303,10 @@ fun MinimalMealRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Left Icon + Type
+        // Left Icon + Meal Name
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1.1f)
+            modifier = Modifier.weight(1f)
         ) {
             Icon(
                 imageVector = typeIcon,
@@ -250,76 +317,53 @@ fun MinimalMealRow(
             Spacer(modifier = Modifier.width(6.dp))
             Column {
                 Text(
-                    text = meal.mealType.shortNameBn,
+                    text = meal.mealType.titleBn,
                     color = typeColor,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = SolaimanLipiFontFamily
                 )
                 Text(
                     text = meal.mealType.timeRangeBn.take(11),
                     color = TextMuted,
-                    fontSize = 9.5.sp
+                    fontSize = 9.5.sp,
+                    fontFamily = SolaimanLipiFontFamily
                 )
             }
         }
 
-        // Center Host Name
+        // Center Menu Snippet or Delivered Timestamp
         Column(
-            modifier = Modifier.weight(1.5f),
+            modifier = Modifier.weight(1.3f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = meal.responsiblePersonName,
-                color = TextWhite,
-                fontSize = 12.5.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = "${meal.householdName} • ${meal.area}",
-                color = TextMuted,
-                fontSize = 10.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        // Right Phone Call Button + Status Dot
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            if (!meal.phoneNumber.isNullOrBlank()) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
-                        .background(PrimaryGreen.copy(alpha = 0.15f))
-                        .clickable {
-                            val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${meal.phoneNumber}"))
-                            context.startActivity(callIntent)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Call,
-                        contentDescription = "Call",
-                        tint = PrimaryGreen,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
+            if (meal.deliveredAt != null) {
+                Text(
+                    text = "পৌঁছেছে: ${meal.deliveredAt}",
+                    color = NeonGreenGlow,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = SolaimanLipiFontFamily
+                )
+            } else {
+                Text(
+                    text = meal.notes ?: meal.specialItems.firstOrNull() ?: "খাবার প্রস্তুত ও বিতরণ",
+                    color = TextWhite,
+                    fontSize = 11.5.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = SolaimanLipiFontFamily
+                )
             }
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            MealStatusBadge(status = meal.status, isCompact = true)
         }
+
+        // Right Status Badge
+        MealStatusBadge(status = meal.status, isCompact = true)
     }
 }
 
 /**
- * Minimal Status Badge
+ * Status Badge
  */
 @Composable
 fun MealStatusBadge(
@@ -343,14 +387,15 @@ fun MealStatusBadge(
         Text(
             text = status.titleBn,
             color = textColor,
-            fontSize = if (isCompact) 9.sp else 10.sp,
-            fontWeight = FontWeight.SemiBold
+            fontSize = if (isCompact) 9.5.sp else 10.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = SolaimanLipiFontFamily
         )
     }
 }
 
 /**
- * Minimal Tomorrow Reminder Notice
+ * Tomorrow Reminder Notice
  */
 @Composable
 fun TomorrowReminderCard(
@@ -359,8 +404,6 @@ fun TomorrowReminderCard(
     modifier: Modifier = Modifier
 ) {
     if (tomorrowSchedule == null) return
-
-    val morningHost = tomorrowSchedule.morningMeal.responsiblePersonName.ifEmpty { "নির্ধারিত পরিবার" }
 
     Row(
         modifier = modifier
@@ -382,11 +425,12 @@ fun TomorrowReminderCard(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "আগামীকাল (${tomorrowSchedule.dayNameBn}): $morningHost",
+                text = "আগামীকাল (${tomorrowSchedule.dayNameBn}): ${tomorrowSchedule.hostHouseholdName}",
                 color = TextWhite,
                 fontSize = 11.5.sp,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                fontFamily = SolaimanLipiFontFamily
             )
         }
 
@@ -394,8 +438,44 @@ fun TomorrowReminderCard(
             text = "দেখুন →",
             color = GoldAccent,
             fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontFamily = SolaimanLipiFontFamily
         )
+    }
+}
+
+/**
+ * 15-Family 30-Day Rotation Explainer Banner
+ */
+@Composable
+fun KhanaRotationInfoCard(
+    householdsCount: Int = 15,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        color = DarkSurfaceElevated,
+        border = BorderStroke(0.6.dp, DarkGreenBorder)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Autorenew,
+                contentDescription = null,
+                tint = PrimaryGreen,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "রোটেশন নিয়ম: $householdsCount টি পরিবার হতে ৩০ দিনের খাদ্য ব্যবস্থা (মাসে প্রতি পরিবার ২ দিন)",
+                color = TextWhite.copy(alpha = 0.85f),
+                fontSize = 11.sp,
+                fontFamily = SolaimanLipiFontFamily
+            )
+        }
     }
 }
 
@@ -412,26 +492,28 @@ fun MealWeeklySummaryBar(
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(DarkSurfaceElevated)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 7.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "সাপ্তাহিক অগ্রগতি:",
+            text = "চলতি সপ্তাহের খানা অগ্রগতি:",
             color = TextMuted,
-            fontSize = 11.sp
+            fontSize = 11.sp,
+            fontFamily = SolaimanLipiFontFamily
         )
         Text(
             text = "মোট ২১ বেলার মধ্যে ${summary.deliveredCount} বেলা সম্পন্ন",
             color = PrimaryGreen,
             fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontFamily = SolaimanLipiFontFamily
         )
     }
 }
 
 /**
- * Clean 7-Day Date Ribbon
+ * Clean Date Ribbon
  */
 @Composable
 fun WeekDateSelector(
@@ -468,7 +550,8 @@ fun WeekDateSelector(
                         text = day.dayNameBn.take(3),
                         color = if (isSelected) Color(0xFF0D1C12) else TextMuted,
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = SolaimanLipiFontFamily
                     )
                     Text(
                         text = day.dateStr.takeLast(2),
@@ -483,7 +566,7 @@ fun WeekDateSelector(
 }
 
 /**
- * Minimal Day Schedule Card (For Feed List)
+ * 1-Household-Per-Day Schedule Card (Feed List)
  */
 @Composable
 fun DayScheduleCard(
@@ -501,7 +584,7 @@ fun DayScheduleCard(
             .padding(10.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Day Header
+            // Day Header + Rotation Index
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -511,18 +594,38 @@ fun DayScheduleCard(
                     text = "${daySchedule.dayNameBn} • ${daySchedule.dateBn}",
                     color = PrimaryGreen,
                     fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = SolaimanLipiFontFamily
                 )
                 Text(
-                    text = "৩ বেলা নির্ধারিত",
-                    color = TextMuted,
-                    fontSize = 10.sp
+                    text = daySchedule.rotationTurnBn,
+                    color = GoldAccent,
+                    fontSize = 10.sp,
+                    fontFamily = SolaimanLipiFontFamily
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Day Host Family Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.Home, contentDescription = null, tint = TextMuted, modifier = Modifier.size(13.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${daySchedule.hostHouseholdName} (${daySchedule.hostResponsiblePerson})",
+                    color = TextWhite,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = SolaimanLipiFontFamily
                 )
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // 3 Meals
+            // 3 Meals Breakdown
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 listOf(daySchedule.morningMeal, daySchedule.lunchMeal, daySchedule.dinnerMeal).forEach { meal ->
                     MinimalMealRow(
@@ -537,7 +640,7 @@ fun DayScheduleCard(
 }
 
 /**
- * Clean Search & Filter Bar
+ * Search & Filter Section
  */
 @Composable
 fun KhanaSearchFilterSection(
@@ -618,7 +721,8 @@ fun KhanaCalendarMonthView(
                     Text(
                         text = day.dayNameBn.take(2),
                         color = if (isSelected) Color.Black else TextMuted,
-                        fontSize = 8.sp
+                        fontSize = 8.sp,
+                        fontFamily = SolaimanLipiFontFamily
                     )
                 }
             }
@@ -627,7 +731,7 @@ fun KhanaCalendarMonthView(
 }
 
 /**
- * Minimal Household Detail Bottom Sheet
+ * Household Detail Bottom Sheet
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -658,17 +762,23 @@ fun HouseholdDetailBottomSheet(
                     text = "${meal.mealType.titleBn} — মেহমানদারি",
                     color = PrimaryGreen,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = SolaimanLipiFontFamily
                 )
                 MealStatusBadge(status = meal.status)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(text = "পরিবার: ${meal.householdName}", color = TextWhite, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
-            Text(text = "মেহমানদারীকারী: ${meal.responsiblePersonName}", color = TextWhite, fontSize = 12.5.sp)
-            Text(text = "ঠিকানা / পাড়া: ${meal.area}", color = TextMuted, fontSize = 12.sp)
-            Text(text = "সময়সূচি: ${meal.mealType.timeRangeBn}", color = GoldAccent, fontSize = 12.sp)
+            Text(text = "পরিবার: ${meal.householdName}", color = TextWhite, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, fontFamily = SolaimanLipiFontFamily)
+            Text(text = "মেহমানদারীকারী: ${meal.responsiblePersonName}", color = TextWhite, fontSize = 12.5.sp, fontFamily = SolaimanLipiFontFamily)
+            Text(text = "ঠিকানা / পাড়া: ${meal.area}", color = TextMuted, fontSize = 12.sp, fontFamily = SolaimanLipiFontFamily)
+            Text(text = "সময়সূচি: ${meal.mealType.timeRangeBn}", color = GoldAccent, fontSize = 12.sp, fontFamily = SolaimanLipiFontFamily)
+
+            if (!meal.notes.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "নোট / মেনু: ${meal.notes}", color = CyanBlue, fontSize = 12.sp, fontFamily = SolaimanLipiFontFamily)
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -684,7 +794,7 @@ fun HouseholdDetailBottomSheet(
                 ) {
                     Icon(Icons.Default.Call, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("ফোন করুন (${meal.phoneNumber})", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("ফোন করুন (${meal.phoneNumber})", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, fontFamily = SolaimanLipiFontFamily)
                 }
             }
 

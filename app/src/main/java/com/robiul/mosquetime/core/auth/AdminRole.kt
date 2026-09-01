@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.core.auth
+package com.robiul.mosquetime.core.auth
 
 enum class AdminRole(val displayNameBn: String, val level: Int) {
     SUPER_ADMIN("সুপার অ্যাডমিন", 1),
@@ -28,6 +28,7 @@ data class AdminUser(
     val designation: String = "",
     val role: AdminRole = AdminRole.VIEWER,
     val phone: String = "",
+    val mosqueId: String = "main_mosque",
     val isActive: Boolean = true,
     val lastLoginMillis: Long = System.currentTimeMillis()
 )
