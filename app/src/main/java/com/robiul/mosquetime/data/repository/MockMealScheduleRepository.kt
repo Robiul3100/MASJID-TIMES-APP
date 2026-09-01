@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.robiul.mosquetime.data.local.LocalDataManager
+import com.robiul.mosquetime.data.firebase.FirestoreCollections
 
 /**
  * Mock repository providing authentic Bangladeshi mosque community data for Imam's food schedule.
@@ -22,14 +24,32 @@ import java.util.Locale
  */
 object MockMealScheduleRepository : MealScheduleRepository {
 
+    private val localDataManager: LocalDataManager = LocalDataManager.getInstance()
+
     private val _periodConfig = MutableStateFlow(MealPeriodConfig())
     override val periodConfig: StateFlow<MealPeriodConfig> = _periodConfig.asStateFlow()
 
-    private val _registeredHouseholds = MutableStateFlow<List<Household>>(createInitialHouseholds())
+    private val _registeredHouseholds = MutableStateFlow<List<Household>>(
+        localDataManager.getHouseholds(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: createInitialHouseholds()
+    )
     override val registeredHouseholds: StateFlow<List<Household>> = _registeredHouseholds.asStateFlow()
 
-    private val _daySchedules = MutableStateFlow<List<DayMealSchedule>>(createInitialSchedules())
+    private val _daySchedules = MutableStateFlow<List<DayMealSchedule>>(
+        localDataManager.getMealSchedule(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: createInitialSchedules()
+    )
     override val daySchedules: StateFlow<List<DayMealSchedule>> = _daySchedules.asStateFlow()
+
+    fun reloadForMosque(mosqueId: String) {
+        val savedHouses = localDataManager.getHouseholds(mosqueId)?.takeIf { it.isNotEmpty() } ?: createInitialHouseholds()
+        _registeredHouseholds.value = savedHouses
+        val savedSchedules = localDataManager.getMealSchedule(mosqueId)?.takeIf { it.isNotEmpty() } ?: createInitialSchedules()
+        _daySchedules.value = savedSchedules
+    }
+
+    private fun persistData() {
+        localDataManager.saveHouseholds(FirestoreCollections.activeMosqueId, _registeredHouseholds.value)
+        localDataManager.saveMealSchedule(FirestoreCollections.activeMosqueId, _daySchedules.value)
+    }
 
     private fun createInitialHouseholds(): List<Household> {
         return listOf(
@@ -260,6 +280,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
             day.copy(morningMeal = m, lunchMeal = l, dinnerMeal = d)
         }
         _daySchedules.value = updated
+        persistData()
     }
 
     override fun updateMealDetails(scheduleId: String, updatedMeal: MealSchedule) {
@@ -270,6 +291,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
             day.copy(morningMeal = m, lunchMeal = l, dinnerMeal = d)
         }
         _daySchedules.value = updated
+        persistData()
     }
 
     override fun updateDayHost(
@@ -315,6 +337,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
             }
         }
         _daySchedules.value = updated
+        persistData()
     }
 
     override fun addOrUpdateDaySchedule(daySchedule: DayMealSchedule) {
@@ -327,11 +350,13 @@ object MockMealScheduleRepository : MealScheduleRepository {
             current.sortBy { it.dateStr }
         }
         _daySchedules.value = current
+        persistData()
     }
 
     override fun deleteDaySchedule(dateStr: String) {
         val current = _daySchedules.value.filterNot { it.dateStr == dateStr }
         _daySchedules.value = current
+        persistData()
     }
 
     override fun addHousehold(household: Household) {
@@ -344,6 +369,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
             current.add(household.copy(serialNumber = serial))
         }
         _registeredHouseholds.value = current
+        persistData()
     }
 
     override fun updateHousehold(household: Household) {
@@ -384,6 +410,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
                 } else day
             }
             _daySchedules.value = updatedSchedules
+            persistData()
         }
     }
 
@@ -392,6 +419,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
         // Re-index serials
         val reindexed = current.mapIndexed { idx, h -> h.copy(serialNumber = idx + 1) }
         _registeredHouseholds.value = reindexed
+        persistData()
     }
 
     override fun generateMonthlyRotation(startDateStr: String?) {
@@ -517,6 +545,7 @@ object MockMealScheduleRepository : MealScheduleRepository {
         }
 
         _daySchedules.value = list
+        persistData()
     }
 
     override fun toggleReminder(scheduleId: String) {

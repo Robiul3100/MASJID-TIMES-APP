@@ -16,17 +16,17 @@ data class MosqueDetails(
     val floors: String,
     val history: String,
     val description: String,
-    val imamName: String,
-    val imamTitle: String,
-    val imamEducation: String,
-    val imamPhone: String,
-    val muazzinName: String,
-    val muazzinPhone: String,
-    val khademName: String,
-    val officePhone: String,
-    val officeEmail: String,
-    val website: String,
-    val facilities: List<FacilityItem>
+    val imamName: String = "",
+    val imamTitle: String = "",
+    val imamEducation: String = "",
+    val imamPhone: String = "",
+    val muazzinName: String = "",
+    val muazzinPhone: String = "",
+    val khademName: String = "",
+    val officePhone: String = "",
+    val officeEmail: String = "",
+    val website: String = "",
+    val facilities: List<FacilityItem> = emptyList()
 )
 
 enum class CommitteeCategory(val titleBn: String) {

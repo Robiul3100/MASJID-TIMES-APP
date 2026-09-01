@@ -63,7 +63,7 @@ fun HelpFaqScreen(
 ) {
     val context = LocalContext.current
     val view = LocalView.current
-    val mosque = MosqueRepository.mosqueInfo
+    val mosque by com.robiul.mosquetime.data.firebase.MosqueAdminRepository.getInstance().mosqueDetails.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(FaqCategory.ALL) }

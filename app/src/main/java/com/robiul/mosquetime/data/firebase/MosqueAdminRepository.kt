@@ -32,6 +32,8 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.robiul.mosquetime.data.local.LocalDataManager
+import com.google.firebase.firestore.ListenerRegistration
 
 data class CustomPrayerOverride(
     val fajrAzan: String = "04:35",
@@ -71,16 +73,23 @@ class MosqueAdminRepository @Inject constructor() {
         }
     }
 
+    private val localDataManager: LocalDataManager = LocalDataManager.getInstance()
     private val firestore: FirebaseFirestore = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null } ?: FirebaseFirestore.getInstance()
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private val _mosqueDetails = MutableStateFlow<MosqueDetails>(MosqueRepository.mosqueInfo)
+    private val _mosqueDetails = MutableStateFlow<MosqueDetails>(
+        localDataManager.getMosqueDetails(FirestoreCollections.activeMosqueId) ?: MosqueRepository.mosqueInfo
+    )
     val mosqueDetails: StateFlow<MosqueDetails> = _mosqueDetails.asStateFlow()
 
-    private val _prayerOverrides = MutableStateFlow(CustomPrayerOverride())
+    private val _prayerOverrides = MutableStateFlow(
+        localDataManager.getPrayerOverride(FirestoreCollections.activeMosqueId) ?: CustomPrayerOverride()
+    )
     val prayerOverrides: StateFlow<CustomPrayerOverride> = _prayerOverrides.asStateFlow()
 
-    private val _committeeList = MutableStateFlow<List<CommitteeMember>>(MosqueRepository.committeeMembers)
+    private val _committeeList = MutableStateFlow<List<CommitteeMember>>(
+        localDataManager.getCommitteeList(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: MosqueRepository.committeeMembers
+    )
     val committeeList: StateFlow<List<CommitteeMember>> = _committeeList.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
@@ -102,7 +111,26 @@ class MosqueAdminRepository @Inject constructor() {
     private val _isCloudSynced = MutableStateFlow(true)
     val isCloudSynced: StateFlow<Boolean> = _isCloudSynced.asStateFlow()
 
+    private val activeListeners = mutableListOf<ListenerRegistration>()
+
     init {
+        // Ensure default overrides are set in MosqueRepository
+        MosqueRepository.setCustomPrayerOverrides(_prayerOverrides.value)
+        fetchInitialData()
+        setupRealtimeListeners()
+    }
+
+    fun reloadForActiveMosque(mosqueId: String) {
+        FirestoreCollections.activeMosqueId = mosqueId
+        _mosqueDetails.value = localDataManager.getMosqueDetails(mosqueId) ?: MosqueRepository.mosqueInfo
+        val override = localDataManager.getPrayerOverride(mosqueId) ?: CustomPrayerOverride()
+        _prayerOverrides.value = override
+        MosqueRepository.setCustomPrayerOverrides(override)
+        _committeeList.value = localDataManager.getCommitteeList(mosqueId)?.takeIf { it.isNotEmpty() } ?: MosqueRepository.committeeMembers
+
+        MosqueRepository.reloadForMosque(mosqueId)
+        com.robiul.mosquetime.data.repository.MockMealScheduleRepository.reloadForMosque(mosqueId)
+
         fetchInitialData()
         setupRealtimeListeners()
     }
@@ -409,9 +437,10 @@ class MosqueAdminRepository @Inject constructor() {
     ): Result<Unit> = withContext(Dispatchers.IO) {
         _isLoading.value = true
         try {
-            // 1. Update in-memory public repository
+            // 1. Update in-memory public repository and local persistence
             _prayerOverrides.value = overrides
             MosqueRepository.setCustomPrayerOverrides(overrides)
+            localDataManager.savePrayerOverride(FirestoreCollections.activeMosqueId, overrides)
 
             // 2. Save to Firestore
             val data = hashMapOf(

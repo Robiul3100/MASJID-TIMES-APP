@@ -3,6 +3,7 @@ package com.robiul.mosquetime.data.firebase
 import android.util.Log
 import com.robiul.mosquetime.core.auth.AdminRole
 import com.robiul.mosquetime.core.auth.AdminUser
+import com.robiul.mosquetime.data.local.LocalDataManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -29,10 +30,14 @@ class AuthRepository @Inject constructor() {
     private val firestore: FirebaseFirestore = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null } ?: FirebaseFirestore.getInstance()
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    private val localDataManager: LocalDataManager = LocalDataManager.getInstance()
+
     private val _currentUser = MutableStateFlow<AdminUser?>(null)
     val currentUser: StateFlow<AdminUser?> = _currentUser.asStateFlow()
 
-    private val _allAdmins = MutableStateFlow<List<AdminUser>>(getDefaultAdminsList())
+    private val _allAdmins = MutableStateFlow<List<AdminUser>>(
+        localDataManager.getAdminUsers()?.takeIf { it.isNotEmpty() } ?: getDefaultAdminsList()
+    )
     val allAdmins: StateFlow<List<AdminUser>> = _allAdmins.asStateFlow()
 
     companion object {
@@ -141,7 +146,9 @@ class AuthRepository @Inject constructor() {
                     if (list.isNotEmpty()) {
                         // Ensure Super Admin is always present
                         val hasSuperAdmin = list.any { it.email.equals(SUPER_ADMIN_EMAIL, ignoreCase = true) }
-                        _allAdmins.value = if (!hasSuperAdmin) listOf(createSuperAdminUser()) + list else list
+                        val finalList = if (!hasSuperAdmin) listOf(createSuperAdminUser()) + list else list
+                        _allAdmins.value = finalList
+                        localDataManager.saveAdminUsers(finalList)
                     }
                 }
             } catch (e: Exception) {
@@ -296,6 +303,7 @@ class AuthRepository @Inject constructor() {
                 if (idx >= 0) set(idx, finalAdmin) else add(finalAdmin)
             }
             _allAdmins.value = updatedList
+            localDataManager.saveAdminUsers(updatedList)
 
             saveAdminUser(finalAdmin)
             Result.success(Unit)
@@ -312,7 +320,9 @@ class AuthRepository @Inject constructor() {
                 return@withContext Result.failure(Exception("মূল সুপার অ্যাডমিন মুছে ফেলা যাবে না"))
             }
 
-            _allAdmins.value = _allAdmins.value.filter { it.uid != adminUid }
+            val updated = _allAdmins.value.filter { it.uid != adminUid }
+            _allAdmins.value = updated
+            localDataManager.saveAdminUsers(updated)
             firestore.collection(FirestoreCollections.ADMIN_USERS).document(adminUid).delete().await()
             Result.success(Unit)
         } catch (e: Exception) {

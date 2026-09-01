@@ -52,7 +52,7 @@ fun ContactScreen(
 ) {
     val context = LocalContext.current
     val view = LocalView.current
-    val mosque = MosqueRepository.mosqueInfo
+    val mosque by com.robiul.mosquetime.data.firebase.MosqueAdminRepository.getInstance().mosqueDetails.collectAsState()
     val scrollState = rememberScrollState()
 
     // Feedback Form State

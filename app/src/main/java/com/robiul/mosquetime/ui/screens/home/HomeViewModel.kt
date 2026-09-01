@@ -49,6 +49,18 @@ class HomeViewModel @Inject constructor(
                 updatePrayerTimesAndCountdown()
             }
         }
+        // Observe real-time prayer overrides
+        viewModelScope.launch {
+            com.robiul.mosquetime.data.firebase.MosqueAdminRepository.getInstance().prayerOverrides.collectLatest {
+                updatePrayerTimesAndCountdown()
+            }
+        }
+        // Observe active mosque info
+        viewModelScope.launch {
+            MosqueRepository.mosqueInfoFlow.collectLatest {
+                updatePrayerTimesAndCountdown()
+            }
+        }
         startClock()
     }
 

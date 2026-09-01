@@ -1,4 +1,4 @@
-﻿package com.robiul.mosquetime.data.repository
+package com.robiul.mosquetime.data.repository
 
 import com.robiul.mosquetime.data.model.AdminAuditLog
 import com.robiul.mosquetime.data.model.AuditActionCategory
@@ -43,7 +43,12 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+import com.robiul.mosquetime.data.local.LocalDataManager
+import com.robiul.mosquetime.data.firebase.FirestoreCollections
+
 object MosqueRepository {
+
+    private val localDataManager: LocalDataManager = LocalDataManager.getInstance()
 
     // -------------------------------------------------------------
     // DISTRICTS OF BANGLADESH
@@ -73,7 +78,7 @@ object MosqueRepository {
     // -------------------------------------------------------------
     // MOSQUE DETAILS
     // -------------------------------------------------------------
-    private var _currentMosqueInfo: MosqueDetails = MosqueDetails(
+    private val _defaultMosqueInfo = MosqueDetails(
         nameBn = "বায়তুল আমান জামে মসজিদ",
         nameEn = "Baitul Aman Jame Masjid",
         establishedYear = "১৯৮৫ খ্রিষ্টাব্দ",
@@ -104,14 +109,21 @@ object MosqueRepository {
         )
     )
 
+    private val _mosqueInfoFlow = MutableStateFlow(
+        localDataManager.getMosqueDetails(FirestoreCollections.activeMosqueId) ?: _defaultMosqueInfo
+    )
+    val mosqueInfoFlow: StateFlow<MosqueDetails> = _mosqueInfoFlow.asStateFlow()
+
     var mosqueInfo: MosqueDetails
-        get() = _currentMosqueInfo
+        get() = _mosqueInfoFlow.value
         set(value) {
-            _currentMosqueInfo = value
+            _mosqueInfoFlow.value = value
+            localDataManager.saveMosqueDetails(FirestoreCollections.activeMosqueId, value)
         }
 
     fun updateMosqueInfo(newInfo: MosqueDetails) {
-        _currentMosqueInfo = newInfo
+        _mosqueInfoFlow.value = newInfo
+        localDataManager.saveMosqueDetails(FirestoreCollections.activeMosqueId, newInfo)
     }
 
     // -------------------------------------------------------------
@@ -130,17 +142,21 @@ object MosqueRepository {
         CommitteeMember("10", "মো. জহিরুল হক", "সদস্য (সমাজকল্যাণ)", CommitteeCategory.GENERAL_MEMBERS, "+880 1817-123456", "সমাজকর্মী")
     )
 
-    private val _committeeFlow = MutableStateFlow(_initialCommitteeMembers)
+    private val _committeeFlow = MutableStateFlow(
+        localDataManager.getCommitteeList(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: _initialCommitteeMembers
+    )
     val committeeFlow: StateFlow<List<CommitteeMember>> = _committeeFlow.asStateFlow()
 
     var committeeMembers: List<CommitteeMember>
         get() = _committeeFlow.value
         set(value) {
             _committeeFlow.value = value
+            localDataManager.saveCommitteeList(FirestoreCollections.activeMosqueId, value)
         }
 
     fun updateCommitteeMembers(newList: List<CommitteeMember>) {
         _committeeFlow.value = newList
+        localDataManager.saveCommitteeList(FirestoreCollections.activeMosqueId, newList)
     }
 
     fun addOrUpdateCommitteeMember(member: CommitteeMember) {
@@ -152,10 +168,13 @@ object MosqueRepository {
             current.add(member)
         }
         _committeeFlow.value = current
+        localDataManager.saveCommitteeList(FirestoreCollections.activeMosqueId, current)
     }
 
     fun deleteCommitteeMember(memberId: String) {
-        _committeeFlow.value = _committeeFlow.value.filter { it.id != memberId }
+        val updated = _committeeFlow.value.filter { it.id != memberId }
+        _committeeFlow.value = updated
+        localDataManager.saveCommitteeList(FirestoreCollections.activeMosqueId, updated)
     }
 
     // -------------------------------------------------------------
@@ -214,7 +233,9 @@ object MosqueRepository {
         )
     )
 
-    private val _noticesFlow = MutableStateFlow(_initialNotices)
+    private val _noticesFlow = MutableStateFlow(
+        localDataManager.getNotices(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: _initialNotices
+    )
     val noticesFlow: StateFlow<List<NoticeItem>> = _noticesFlow.asStateFlow()
     val notices: List<NoticeItem> get() = _noticesFlow.value
 
@@ -227,16 +248,21 @@ object MosqueRepository {
             current.add(0, notice)
         }
         _noticesFlow.value = current
+        localDataManager.saveNotices(FirestoreCollections.activeMosqueId, current)
     }
 
     fun deleteNotice(noticeId: String) {
-        _noticesFlow.value = _noticesFlow.value.filter { it.id != noticeId }
+        val updated = _noticesFlow.value.filter { it.id != noticeId }
+        _noticesFlow.value = updated
+        localDataManager.saveNotices(FirestoreCollections.activeMosqueId, updated)
     }
 
     fun togglePinNotice(noticeId: String) {
-        _noticesFlow.value = _noticesFlow.value.map {
+        val updated = _noticesFlow.value.map {
             if (it.id == noticeId) it.copy(isPinned = !it.isPinned) else it
         }
+        _noticesFlow.value = updated
+        localDataManager.saveNotices(FirestoreCollections.activeMosqueId, updated)
     }
 
     // -------------------------------------------------------------
@@ -750,7 +776,9 @@ object MosqueRepository {
         )
     )
 
-    private val _bankAccountsFlow = MutableStateFlow(_initialBankAccounts)
+    private val _bankAccountsFlow = MutableStateFlow(
+        localDataManager.getBankAccounts(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: _initialBankAccounts
+    )
     val bankAccountsFlow: StateFlow<List<BankAccountInfo>> = _bankAccountsFlow.asStateFlow()
     val bankAccounts: List<BankAccountInfo> get() = _bankAccountsFlow.value
 
@@ -763,10 +791,13 @@ object MosqueRepository {
             current.add(account)
         }
         _bankAccountsFlow.value = current
+        localDataManager.saveBankAccounts(FirestoreCollections.activeMosqueId, current)
     }
 
     fun deleteBankAccount(accountNumber: String) {
-        _bankAccountsFlow.value = _bankAccountsFlow.value.filter { it.accountNumber != accountNumber }
+        val updated = _bankAccountsFlow.value.filter { it.accountNumber != accountNumber }
+        _bankAccountsFlow.value = updated
+        localDataManager.saveBankAccounts(FirestoreCollections.activeMosqueId, updated)
     }
 
     private val _initialMobileAccounts = listOf(
@@ -775,7 +806,9 @@ object MosqueRepository {
         MobileAccountInfo("Rocket (রকেট বিলার)", "01912334455", "বিলার আইডি: ৩৪০৫")
     )
 
-    private val _mobileAccountsFlow = MutableStateFlow(_initialMobileAccounts)
+    private val _mobileAccountsFlow = MutableStateFlow(
+        localDataManager.getMobileAccounts(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: _initialMobileAccounts
+    )
     val mobileAccountsFlow: StateFlow<List<MobileAccountInfo>> = _mobileAccountsFlow.asStateFlow()
     val mobileAccounts: List<MobileAccountInfo> get() = _mobileAccountsFlow.value
 
@@ -788,10 +821,13 @@ object MosqueRepository {
             current.add(account)
         }
         _mobileAccountsFlow.value = current
+        localDataManager.saveMobileAccounts(FirestoreCollections.activeMosqueId, current)
     }
 
     fun deleteMobileAccount(number: String) {
-        _mobileAccountsFlow.value = _mobileAccountsFlow.value.filter { it.number != number }
+        val updated = _mobileAccountsFlow.value.filter { it.number != number }
+        _mobileAccountsFlow.value = updated
+        localDataManager.saveMobileAccounts(FirestoreCollections.activeMosqueId, updated)
     }
 
     // Community Donation Records Flow for Tracking
@@ -802,7 +838,9 @@ object MosqueRepository {
         DonationRecord("dn_4", "রমজান ইফতার ও ঈদ তহবিল", 5000L, "নগদ ক্যাশ (মসজিদ অফিস)", "CASH-2025-05", "নাম প্রকাশে অনিচ্ছুক", "01600000000", "২৬ মে, ১২:০০ PM", "যাচাইকৃত ও গৃহীত")
     )
 
-    private val _donationRecordsFlow = MutableStateFlow(_initialDonationRecords)
+    private val _donationRecordsFlow = MutableStateFlow(
+        localDataManager.getDonationRecords(FirestoreCollections.activeMosqueId)?.takeIf { it.isNotEmpty() } ?: _initialDonationRecords
+    )
     val donationRecordsFlow: StateFlow<List<DonationRecord>> = _donationRecordsFlow.asStateFlow()
     val donationRecords: List<DonationRecord> get() = _donationRecordsFlow.value
 
@@ -810,16 +848,21 @@ object MosqueRepository {
         val current = _donationRecordsFlow.value.toMutableList()
         current.add(0, record)
         _donationRecordsFlow.value = current
+        localDataManager.saveDonationRecords(FirestoreCollections.activeMosqueId, current)
     }
 
     fun updateDonationStatus(recordId: String, newStatus: String) {
-        _donationRecordsFlow.value = _donationRecordsFlow.value.map {
+        val updated = _donationRecordsFlow.value.map {
             if (it.id == recordId) it.copy(status = newStatus) else it
         }
+        _donationRecordsFlow.value = updated
+        localDataManager.saveDonationRecords(FirestoreCollections.activeMosqueId, updated)
     }
 
     fun deleteDonationRecord(recordId: String) {
-        _donationRecordsFlow.value = _donationRecordsFlow.value.filter { it.id != recordId }
+        val updated = _donationRecordsFlow.value.filter { it.id != recordId }
+        _donationRecordsFlow.value = updated
+        localDataManager.saveDonationRecords(FirestoreCollections.activeMosqueId, updated)
     }
 
     // -------------------------------------------------------------
@@ -1264,7 +1307,9 @@ object MosqueRepository {
         )
     )
 
-    private val _emergencyAlertsFlow = MutableStateFlow(_initialEmergencyAlerts)
+    private val _emergencyAlertsFlow = MutableStateFlow(
+        localDataManager.getEmergencyAlert(FirestoreCollections.activeMosqueId)?.let { listOf(it) } ?: _initialEmergencyAlerts
+    )
     val emergencyAlertsFlow: StateFlow<List<EmergencyAlert>> = _emergencyAlertsFlow.asStateFlow()
     val emergencyAlerts: List<EmergencyAlert> get() = _emergencyAlertsFlow.value
 
@@ -1277,15 +1322,26 @@ object MosqueRepository {
             current.add(0, alert)
         }
         _emergencyAlertsFlow.value = current
+        localDataManager.saveEmergencyAlert(FirestoreCollections.activeMosqueId, alert)
     }
 
     fun deleteEmergencyAlert(alertId: String) {
-        _emergencyAlertsFlow.value = _emergencyAlertsFlow.value.filter { it.id != alertId }
+        val updated = _emergencyAlertsFlow.value.filter { it.id != alertId }
+        _emergencyAlertsFlow.value = updated
+        val active = updated.firstOrNull { !it.isResolved }
+        if (active != null) {
+            localDataManager.saveEmergencyAlert(FirestoreCollections.activeMosqueId, active)
+        }
     }
 
     fun toggleEmergencyAlertResolved(alertId: String) {
-        _emergencyAlertsFlow.value = _emergencyAlertsFlow.value.map {
+        val updated = _emergencyAlertsFlow.value.map {
             if (it.id == alertId) it.copy(isResolved = !it.isResolved) else it
+        }
+        _emergencyAlertsFlow.value = updated
+        val active = updated.firstOrNull { !it.isResolved }
+        if (active != null) {
+            localDataManager.saveEmergencyAlert(FirestoreCollections.activeMosqueId, active)
         }
     }
 
@@ -1407,5 +1463,16 @@ object MosqueRepository {
             serverUrlPattern = "https://server12.mp3quran.net/maher/%03d.mp3"
         )
     )
+
+    fun reloadForMosque(mosqueId: String) {
+        _mosqueInfoFlow.value = localDataManager.getMosqueDetails(mosqueId) ?: _defaultMosqueInfo
+        _committeeFlow.value = localDataManager.getCommitteeList(mosqueId)?.takeIf { it.isNotEmpty() } ?: _initialCommitteeMembers
+        _noticesFlow.value = localDataManager.getNotices(mosqueId)?.takeIf { it.isNotEmpty() } ?: _initialNotices
+        _bankAccountsFlow.value = localDataManager.getBankAccounts(mosqueId)?.takeIf { it.isNotEmpty() } ?: _initialBankAccounts
+        _mobileAccountsFlow.value = localDataManager.getMobileAccounts(mosqueId)?.takeIf { it.isNotEmpty() } ?: _initialMobileAccounts
+        _donationRecordsFlow.value = localDataManager.getDonationRecords(mosqueId)?.takeIf { it.isNotEmpty() } ?: _initialDonationRecords
+        _emergencyAlertsFlow.value = localDataManager.getEmergencyAlert(mosqueId)?.let { listOf(it) } ?: _initialEmergencyAlerts
+        _customOverrides = localDataManager.getPrayerOverride(mosqueId)
+    }
 }
 

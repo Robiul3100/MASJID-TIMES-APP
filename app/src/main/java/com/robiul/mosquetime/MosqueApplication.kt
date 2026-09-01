@@ -9,8 +9,15 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class MosqueApplication : Application() {
 
+    companion object {
+        lateinit var instance: MosqueApplication
+            private set
+        val appContext get() = instance.applicationContext
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
 
         // 1. Initialize Firebase safely
         try {

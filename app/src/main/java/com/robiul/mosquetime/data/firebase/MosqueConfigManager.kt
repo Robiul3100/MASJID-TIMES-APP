@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.robiul.mosquetime.data.local.LocalDataManager
+import com.robiul.mosquetime.data.model.MosqueDetails
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,10 +33,20 @@ class MosqueConfigManager @Inject constructor() {
     private val firestore: FirebaseFirestore = try { FirebaseFirestore.getInstance() } catch (e: Exception) { null } ?: FirebaseFirestore.getInstance()
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private val _configuredMosques = MutableStateFlow<List<MosqueConfig>>(getDefaultMosques())
+    private val localDataManager: LocalDataManager = LocalDataManager.getInstance()
+
+    private val _configuredMosques = MutableStateFlow<List<MosqueConfig>>(
+        localDataManager.getConfiguredMosques()?.takeIf { it.isNotEmpty() } ?: getDefaultMosques()
+    )
     val configuredMosques: StateFlow<List<MosqueConfig>> = _configuredMosques.asStateFlow()
 
-    private val _activeMosque = MutableStateFlow<MosqueConfig>(getDefaultMosques().first())
+    private val _activeMosque = MutableStateFlow<MosqueConfig>(
+        run {
+            val savedId = localDataManager.getActiveMosqueId()
+            val list = _configuredMosques.value
+            list.find { it.id == savedId } ?: list.first()
+        }
+    )
     val activeMosque: StateFlow<MosqueConfig> = _activeMosque.asStateFlow()
 
     companion object {
@@ -91,7 +103,7 @@ class MosqueConfigManager @Inject constructor() {
             try {
                 val snapshot = firestore.collection(FirestoreCollections.MOSQUE_CONFIGS).get().await()
                 if (snapshot != null && !snapshot.isEmpty) {
-                    val list = snapshot.documents.mapNotNull { doc ->
+                    val remoteList = snapshot.documents.mapNotNull { doc ->
                         try {
                             MosqueConfig(
                                 id = doc.getString("id") ?: doc.id,
@@ -106,10 +118,21 @@ class MosqueConfigManager @Inject constructor() {
                             null
                         }
                     }
-                    if (list.isNotEmpty()) {
-                        _configuredMosques.value = list
-                        // Match or fallback active mosque
-                        val currentActive = list.find { it.id == FirestoreCollections.activeMosqueId } ?: list.first()
+                    if (remoteList.isNotEmpty()) {
+                        // Merge remote with defaults / existing
+                        val merged = _configuredMosques.value.toMutableList()
+                        remoteList.forEach { remote ->
+                            val idx = merged.indexOfFirst { it.id == remote.id }
+                            if (idx >= 0) {
+                                merged[idx] = remote
+                            } else {
+                                merged.add(remote)
+                            }
+                        }
+                        _configuredMosques.value = merged
+                        localDataManager.saveConfiguredMosques(merged)
+
+                        val currentActive = merged.find { it.id == FirestoreCollections.activeMosqueId } ?: merged.first()
                         _activeMosque.value = currentActive
                     }
                 }
@@ -125,10 +148,10 @@ class MosqueConfigManager @Inject constructor() {
 
         _activeMosque.value = target
         FirestoreCollections.activeMosqueId = target.id
+        localDataManager.saveActiveMosqueId(target.id)
 
         // Trigger repo reload for new mosque database
-        MosqueAdminRepository.getInstance().loadMosqueProfileFromFirestore()
-        MosqueAdminRepository.getInstance().loadPrayerScheduleFromFirestore()
+        MosqueAdminRepository.getInstance().reloadForActiveMosque(target.id)
 
         Result.success(target)
     }
@@ -144,6 +167,24 @@ class MosqueConfigManager @Inject constructor() {
                 }
             }
             _configuredMosques.value = updatedList
+            localDataManager.saveConfiguredMosques(updatedList)
+
+            // Ensure mosque profile exists in local data
+            val existingDetails = localDataManager.getMosqueDetails(config.id)
+            if (existingDetails == null) {
+                val newDetails = MosqueDetails(
+                    nameBn = config.nameBn,
+                    nameEn = config.nameEn,
+                    establishedYear = config.establishedYear,
+                    address = config.address,
+                    district = config.district,
+                    capacity = "১,৫০০+ জন",
+                    floors = "৩ তলা",
+                    history = "${config.nameBn} ${config.establishedYear} সালে প্রতিষ্ঠিত হয়।",
+                    description = "${config.address}-এ অবস্থিত ঐতিহ্যবাহী জামে মসজিদ।"
+                )
+                localDataManager.saveMosqueDetails(config.id, newDetails)
+            }
 
             val data = hashMapOf(
                 "id" to config.id,
@@ -162,8 +203,8 @@ class MosqueConfigManager @Inject constructor() {
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e("MosqueConfigManager", "Failed to save mosque config: ${e.message}")
-            Result.success(Unit) // Offline successful
+            Log.e("MosqueConfigManager", "Failed to save mosque config to cloud: ${e.message}")
+            Result.success(Unit) // Offline persistence already succeeded
         }
     }
 }
